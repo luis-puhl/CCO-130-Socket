@@ -79,7 +79,7 @@ def init_server():
         # rlist: wait until ready for reading
         # wlist: wait until ready for writing
         # xlist: wait for an “exceptional condition” (see the manual page for what your system considers such a condition)
-        rlist, wlist, xlist = select.select(clients + [s], [], [])
+        rlist, wlist, xlist = select.select(clients + [sock], [], [])
         print(rlist)
         for cli in rlist:
             if cli == s:
