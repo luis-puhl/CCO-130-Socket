@@ -3,15 +3,20 @@
 import socket
 
 class TcpConnection:
-    def __init__(self, remote_host='localhost', remote_port=8080):
-        # The address family should be AF_INET (the default), AF_INET6, AF_UNIX, AF_CAN, AF_PACKET, or AF_RDS.
-        # The socket type should be SOCK_STREAM (the default), SOCK_DGRAM, SOCK_RAW or perhaps one of the other SOCK_ constants.
-        self.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-        # setsockopt(level, optname, value: int), Unix manual page setsockopt(2)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    def __init__(self, sock=None):
+        if not sock:
+            # The address family should be AF_INET (the default), AF_INET6, AF_UNIX, AF_CAN, AF_PACKET, or AF_RDS.
+            # The socket type should be SOCK_STREAM (the default), SOCK_DGRAM, SOCK_RAW or perhaps one of the other SOCK_ constants.
+            self.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+            self.setsockopt()
+        else:
+            self.sock = sock
+
+    def fileno(self):
+        return self.sock.fileno()
 
     def recv(self, buffer_size=4096):
-        return self.sock.rcv(buffer_size)
+        return self.sock.recv(buffer_size)
 
     def send(self, data=b''):
         return self.sock.send(data)
@@ -26,6 +31,7 @@ class TcpConnection:
         return self.sock.close()
 
     def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):
+        # setsockopt(level, optname, value: int), Unix manual page setsockopt(2)
         return self.sock.setsockopt(level, optname, value)
 
     def setblocking(self, is_blocking=True):
@@ -42,4 +48,7 @@ class TcpConnection:
         return self.sock.listen(segmets_backlog)
 
     def accept(self):
-        return self.sock.accept()
+        cli, addr = self.sock.accept()
+        cli = TcpConnection(cli)
+        print('accept', cli, addr)
+        return cli, addr
