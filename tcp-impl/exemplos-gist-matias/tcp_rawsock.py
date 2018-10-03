@@ -31,6 +31,20 @@ def handle_ipv4_header(packet):
     segment = packet[4*ihl:]
     return src_addr, dst_addr, segment
 
+def tcp_seg_format():
+    """
+    | Len      | Meanig                   |
+    | 16 16    | src-port#, dst-port#     |
+    | 32       | sq#                      |
+    | 32       | ack#                     |
+    | 4 6 6 16 | len, empty, flags, Wind  |
+    | 16 16    | chk sum, urg ptr         |
+    | <var>    | Options                  |
+    | <var>    | Data                     |
+
+    Flags = (URG, ACK, PSH, RST, SYN, FIN)
+    Options = (MMS, win mgm, RFC 854 1323)
+    """
 
 def make_synack(src_port, dst_port, ack_no):
     return struct.pack('!HHIIHHHH', src_port, dst_port, 0,
@@ -46,6 +60,7 @@ def calc_checksum(segment):
         while checksum > 0xffff:
             checksum = (checksum & 0xffff) + 1
     checksum = ~checksum
+    # reundante limitar à 0xffff
     return checksum & 0xffff
 
 def fix_checksum(segment, src_addr, dst_addr):
@@ -75,7 +90,7 @@ def raw_recv(fd):
     if (flags & FLAGS_SYN) == FLAGS_SYN:
         print('%s:%d -> %s:%d (seq=%d)' % (src_addr, src_port,
                                            dst_addr, dst_port, seq_no))
-        
+
         fd.sendto(fix_checksum(make_synack(dst_port, src_port, seq_no + 1),
                                src_addr, dst_addr),
                   (src_addr, src_port))

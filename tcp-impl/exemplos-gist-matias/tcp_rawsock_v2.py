@@ -21,7 +21,6 @@ MSS = 1460
 
 TESTAR_PERDA_ENVIO = False
 
-
 class Conexao:
     def __init__(self, id_conexao, seq_no, ack_no):
         self.id_conexao = id_conexao
@@ -75,6 +74,32 @@ def fix_checksum(segment, src_addr, dst_addr):
     seg[16:18] = struct.pack('!H', calc_checksum(pseudohdr + seg))
     return bytes(seg)
 
+def make_segment(src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):
+    """
+    | Len      | Meanig                   |
+    |----------|--------------------------|
+    | 16 16    | src-port#, dst-port#     |
+    | 32       | sq#                      |
+    | 32       | ack#                     |
+    | 4 6 6 16 | len, empty, flags, Wind  |
+    | 16 16    | chk sum, urg ptr         |
+    | <var>    | Options                  |
+    | <var>    | Data                     |
+
+    Flags = (URG, ACK, PSH, RST, SYN, FIN)
+    Options = (MMS, win mgm, RFC 854 1323)
+    """
+    return struct.pack(
+        '!HHIIHHHH',
+        src_port,
+        dst_port,
+        seq,
+        ack,
+        (5<<12)|flags,
+        window_size,
+        chk_sum,
+        urg_ptr
+    )
 
 def send_next(fd, conexao):
     payload = conexao.send_queue[:MSS]
@@ -82,9 +107,13 @@ def send_next(fd, conexao):
 
     (dst_addr, dst_port, src_addr, src_port) = conexao.id_conexao
 
-    segment = struct.pack('!HHIIHHHH', src_port, dst_port, conexao.seq_no,
-                          conexao.ack_no, (5<<12)|FLAGS_ACK,
-                          1024, 0, 0) + payload
+    segment = make_segment(
+        src_port,
+        dst_port,
+        conexao.seq_no,
+        conexao.ack_no,
+        FLAGS_ACK
+    ) + payload
 
     conexao.seq_no = (conexao.seq_no + len(payload)) & 0xffffffff
 
@@ -94,9 +123,14 @@ def send_next(fd, conexao):
         fd.sendto(segment, (dst_addr, dst_port))
 
     if conexao.send_queue == b"":
-        segment = struct.pack('!HHIIHHHH', src_port, dst_port, conexao.seq_no,
-                          conexao.ack_no, (5<<12)|FLAGS_FIN|FLAGS_ACK,
-                          0, 0, 0)
+        segment = make_segment(
+            src_port,
+            dst_port,
+            conexao.seq_no,
+            conexao.ack_no,
+            FLAGS_FIN|FLAGS_ACK,
+            0
+        )
         segment = fix_checksum(segment, src_addr, dst_addr)
         fd.sendto(segment, (dst_addr, dst_port))
     else:
@@ -106,9 +140,8 @@ def send_next(fd, conexao):
 def raw_recv(fd):
     packet = fd.recv(12000)
     src_addr, dst_addr, segment = handle_ipv4_header(packet)
-    src_port, dst_port, seq_no, ack_no, \
-        flags, window_size, checksum, urg_ptr = \
-        struct.unpack('!HHIIHHHH', segment[:20])
+    src_port, dst_port, seq_no, ack_no, flags, window_size, checksum, urg_ptr \
+         = struct.unpack('!HHIIHHHH', segment[:20])
 
     id_conexao = (src_addr, src_port, dst_addr, dst_port)
 
@@ -118,16 +151,20 @@ def raw_recv(fd):
     payload = segment[4*(flags>>12):]
 
     if (flags & FLAGS_SYN) == FLAGS_SYN:
-        print('%s:%d -> %s:%d (seq=%d)' % (src_addr, src_port,
-                                           dst_addr, dst_port, seq_no))
+        print('%s:%d -> %s:%d (seq=%d)' % (src_addr, src_port, dst_addr, dst_port, seq_no))
 
-        conexoes[id_conexao] = conexao = Conexao(id_conexao=id_conexao,
-                                                 seq_no=struct.unpack('I', os.urandom(4))[0],
-                                                 ack_no=seq_no + 1)
+        conexoes[id_conexao] = conexao = Conexao(
+            id_conexao=id_conexao,
+            seq_no=struct.unpack('I', os.urandom(4))[0],
+            ack_no=seq_no + 1
+        )
 
-        fd.sendto(fix_checksum(make_synack(dst_port, src_port, conexao.seq_no, conexao.ack_no),
-                               src_addr, dst_addr),
-                  (src_addr, src_port))
+        segment = fix_checksum(
+            make_synack(dst_port, src_port, conexao.seq_no, conexao.ack_no),
+            src_addr,
+            dst_addr
+        )
+        fd.sendto(segment, (src_addr, src_port))
 
         conexao.seq_no += 1
 
