@@ -18,6 +18,7 @@ FLAGS_RST = 1<<2
 FLAGS_ACK = 1<<4
 
 MSS = 1460
+# MSL (Maximum Segment Lifetime)
 
 TESTAR_PERDA_ENVIO = False
 
@@ -47,33 +48,6 @@ def handle_ipv4_header(packet):
     return src_addr, dst_addr, segment
 
 
-def make_synack(src_port, dst_port, seq_no, ack_no):
-    return struct.pack('!HHIIHHHH', src_port, dst_port, seq_no,
-                       ack_no, (5<<12)|FLAGS_ACK|FLAGS_SYN,
-                       1024, 0, 0)
-
-
-def calc_checksum(segment):
-    if len(segment) % 2 == 1:
-        # se for ímpar, faz padding à direita
-        segment += b'\x00'
-    checksum = 0
-    for i in range(0, len(segment), 2):
-        x, = struct.unpack('!H', segment[i:i+2])
-        checksum += x
-        while checksum > 0xffff:
-            checksum = (checksum & 0xffff) + 1
-    checksum = ~checksum
-    return checksum & 0xffff
-
-def fix_checksum(segment, src_addr, dst_addr):
-    pseudohdr = str2addr(src_addr) + str2addr(dst_addr) + \
-        struct.pack('!HH', 0x0006, len(segment))
-    seg = bytearray(segment)
-    seg[16:18] = b'\x00\x00'
-    seg[16:18] = struct.pack('!H', calc_checksum(pseudohdr + seg))
-    return bytes(seg)
-
 def make_segment(src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):
     """
     | Len      | Meanig                   |
@@ -101,6 +75,30 @@ def make_segment(src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr
         urg_ptr
     )
 
+def make_synack(src_port, dst_port, seq_no, ack_no):
+    return make_segment(src_port, dst_port, seq_no, ack_no, FLAGS_ACK|FLAGS_SYN)
+
+def calc_checksum(segment):
+    if len(segment) % 2 == 1:
+        # se for ímpar, faz padding à direita
+        segment += b'\x00'
+    checksum = 0
+    for i in range(0, len(segment), 2):
+        x, = struct.unpack('!H', segment[i:i+2])
+        checksum += x
+        while checksum > 0xffff:
+            checksum = (checksum & 0xffff) + 1
+    checksum = ~checksum
+    return checksum & 0xffff
+
+def fix_checksum(segment, src_addr, dst_addr):
+    pseudohdr = str2addr(src_addr) + str2addr(dst_addr) + \
+        struct.pack('!HH', 0x0006, len(segment))
+    seg = bytearray(segment)
+    seg[16:18] = b'\x00\x00'
+    seg[16:18] = struct.pack('!H', calc_checksum(pseudohdr + seg))
+    return bytes(seg)
+
 def send_next(fd, conexao):
     payload = conexao.send_queue[:MSS]
     conexao.send_queue = conexao.send_queue[MSS:]
@@ -120,9 +118,11 @@ def send_next(fd, conexao):
     segment = fix_checksum(segment, src_addr, dst_addr)
 
     if not TESTAR_PERDA_ENVIO or random.random() < 0.95:
+        # envia pela interface SOCK_RAW
         fd.sendto(segment, (dst_addr, dst_port))
 
     if conexao.send_queue == b"":
+        # fila vazia
         segment = make_segment(
             src_port,
             dst_port,
@@ -145,6 +145,7 @@ def raw_recv(fd):
 
     id_conexao = (src_addr, src_port, dst_addr, dst_port)
 
+    # retorna pois outra parte do SO vai cuidar de enviar o FIN recusando a conexão
     if dst_port != 7000:
         return
 

@@ -1,31 +1,18 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 from HttpServer import HttpServer
-import threading
 
-class App(threading.Thread):
+class App:
     def __init__(self, host='localhost', port=8080):
         callback = self.route
         self.httpserver = HttpServer(callback, host, port)
-
-        self.threadLock = threading.Lock()
-
-        threading.Thread.__init__(self)
-
-    def run(self):
-        self.listen()
-        # try:
-        #     self.listen()
-        # except Exception as error:
-        #     print('error', error)
-        #     raise error
 
     def shutdown(self):
         print('App shutdown')
         self.httpserver.shutdown()
 
-    def listen(self):
-        self.httpserver.listen()
+    async def listen(self):
+        await self.httpserver.listen()
 
     def route(self, req_line={}, req_headers={}, req_body=b''):
         staus, headers, body = self.echo_http(req_line, req_headers, req_body)
@@ -49,14 +36,12 @@ class App(threading.Thread):
         return response_headers, response_body
 
     def root(self, request):
-        response = {
-            staus: b'HTTP/1.1 302 Found',
-            headers: {
-                b'Location': b'/index.html?zoom=17&lat=-21.98046&lon=-47.88036',
-            },
-            body: '',
+        staus = 302
+        headers = {
+            b'Location': b'/index.html?zoom=17&lat=-21.98046&lon=-47.88036',
         }
-        return response
+        body = ''
+        return staus, headers, body
 
     def index(self, request):
         pass
@@ -67,13 +52,8 @@ class App(threading.Thread):
             texto = b"Hello " + path
         else:
             texto = b"Num entendi"
-        # resp = b"HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n" % len(texto)
-        # resp += texto
 
-        staus = b'HTTP/1.1 200 OK'
+        staus = 200
         headers = {}
         body = texto
         return staus, headers, body
-
-    def close():
-        pass

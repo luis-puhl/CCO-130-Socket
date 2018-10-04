@@ -1,9 +1,8 @@
-#!/usr/bin/python3
-# -*- encoding: utf-8 -*-
 import socket
 import asyncio
+import time
 
-class TcpConnection:
+class TcpSock:
     def __init__(self, sock=None):
         if not sock:
             # The address family should be AF_INET (the default), AF_INET6, AF_UNIX, AF_CAN, AF_PACKET, or AF_RDS.
@@ -12,6 +11,9 @@ class TcpConnection:
             self.setsockopt()
         else:
             self.sock = sock
+
+    def type(self):
+        return self.sock.type
 
     def fileno(self):
         return self.sock.fileno()
@@ -59,3 +61,6 @@ class TcpConnection:
         cli = TcpConnection(cli)
         print('TcpConnection accept', cli, addr)
         return cli, addr
+
+    def connect(self, host='localhost', port=8080):
+        return self.sock.connect((host, port))

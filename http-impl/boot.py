@@ -1,35 +1,41 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
+import asyncio
+import time
 from App import App
 from AppTest import AppTest
 
-def main():
-    print('Starting App')
+async def run_app():
     app = App()
-    app.start()
-    print('Testing App')
-    appTest = AppTest()
-    # appTest.daemon = True
-    appTest.start()
-
-    # shutdown
-    print('Waiting appTest.join(2)')
-    appTest.join(2)
-    print('Done appTest.join(2)')
-    if appTest.is_alive():
-        print('killing appTest')
-        appTest.cancel()
-    print('Test done')
-
-    print('Waiting app.join()')
     try:
-        app.join()
+        await app.listen()
     except KeyboardInterrupt:
-        print('KeyboardInterrupt, shuting down...')
-        app.shutdown(2)
-        if app.is_alive():
-            print('killing app')
-            app.cancel()
+        app.shutdown()
+
+async def test_app():
+    appTest = AppTest()
+    await appTest.run_test()
+
+async def main():
+    print('started at', time.strftime('%X'))
+    app, test = await asyncio.gather(
+        run_app(),
+        test_app(),
+    )
+    print('finished at', time.strftime('%X'))
+    print(app, test)
+    return app, test
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        raise e
+        # logging...etc
+        pass
+    except KeyboardInterrupt as e:
+        print('KeyboardInterrupt...')
+        # logging...etc
+        pass
+    finally:
+        pass
