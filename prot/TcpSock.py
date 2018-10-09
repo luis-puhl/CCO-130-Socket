@@ -1,6 +1,7 @@
 import socket
 import asyncio
 import time
+import select
 
 class TcpSock:
     def __init__(self, sock=None):
@@ -19,9 +20,9 @@ class TcpSock:
         return self.sock.fileno()
 
     async def recv(self, buffer_size=4096):
-        await asyncio.sleep(0.1)
-        return self.sock.recv(buffer_size)
-        await asyncio.sleep(0.1)
+        read, write, expe = select.select([self], [], [], 0.1)
+        for sock in read:
+            return sock.recv(buffer_size)
 
     async def send(self, data=b''):
         await asyncio.sleep(0.1)

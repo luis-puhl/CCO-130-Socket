@@ -6,11 +6,11 @@ from App import App
 from AppTest import AppTest
 
 async def run_app():
-    app = App()
+    app = App(host='')
     try:
         await app.listen()
     except KeyboardInterrupt:
-        app.shutdown()
+        await app.shutdown()
 
 async def test_app():
     appTest = AppTest()

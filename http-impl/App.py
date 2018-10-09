@@ -7,9 +7,9 @@ class App:
         callback = self.route
         self.httpserver = HttpServer(callback, host, port)
 
-    def shutdown(self):
+    async def shutdown(self):
         print('App shutdown')
-        self.httpserver.shutdown()
+        await self.httpserver.shutdown()
 
     async def listen(self):
         await self.httpserver.listen()

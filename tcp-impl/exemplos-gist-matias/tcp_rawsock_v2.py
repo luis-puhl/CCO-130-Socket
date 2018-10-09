@@ -18,6 +18,7 @@ FLAGS_RST = 1<<2
 FLAGS_ACK = 1<<4
 
 MSS = 1460
+# MSS (Maximum Segment Size)
 # MSL (Maximum Segment Lifetime)
 
 TESTAR_PERDA_ENVIO = False

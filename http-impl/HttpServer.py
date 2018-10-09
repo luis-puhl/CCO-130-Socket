@@ -50,12 +50,12 @@ class HttpServer:
         print('HttpServer out_flag', self.out_flag)
         await asyncio.sleep(0.1)
 
-    async def select(self, rlist, wlist, xlist):
+    def select(self, rlist, wlist, xlist):
         # rlist: wait until ready for reading
         # wlist: wait until ready for writing
         # xlist: wait for an “exceptional condition” (see the manual page for what your system considers such a condition)
-        await asyncio.sleep(0.01)
-        return select.select(rlist, wlist, xlist)
+        # print('HttpServer select')
+        return select.select(rlist, wlist, xlist, 0.1)
 
 
     async def listen(self):
@@ -67,13 +67,10 @@ class HttpServer:
 
         self.out_flag = False
         while not self.out_flag:
-            print('HttpServer http server loop')
+            # print('HttpServer http server loop')
             await asyncio.sleep(0.0001)
             try:
-                rlist, wlist, xlist = await asyncio.wait_for(
-                    self.select(self.clients + [self.tcpServer], [], []),
-                    timeout=1
-                )
+                rlist, wlist, xlist = self.select(self.clients + [self.tcpServer], [], [])
                 for cli in rlist:
                     if cli == self.tcpServer:
                         cli = self.tcpServer
