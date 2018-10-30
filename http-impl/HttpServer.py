@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 from TcpConnection import TcpConnection
+from datetime import datetime
 import select
 import asyncio
 
@@ -29,6 +30,7 @@ HTTP_REQ_VERBS_HAS_BODY = {
 HTTP_RES_STATUS = {
     200: b'HTTP/1.1 200 OK',
     302: b'HTTP/1.1 302 Found', # Redireciona
+    404: b'HTTP/1.1 404 Not Found',
 }
 
 class HttpServer:
@@ -148,14 +150,15 @@ class HttpServer:
             status = b'HTTP/1.1 404 Not Found',
 
         if not b'Date: ' in headers:
-            headers[b'Date'] = 'Mon, 01 Oct 2018 14:52:12 GMT'
+            # headers[b'Date'] = 'Mon, 01 Oct 2018 14:52:12 GMT'
+            headers[b'Date'] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %Z")
         if not b'server: ' in headers:
-            headers[b'server'] = 'ecstatic-3.2.0'
+            headers[b'server'] = 'marreco de latex'
         if not b'Connection: ' in headers:
             headers[b'Connection'] = 'keep-alive'
 
         if not b'Content-Length: ' in headers:
-            headers[b'Content-Length: '] = len(body)
+            headers[b'Content-Length'] = len(body)
 
         raw_response = b''
         raw_response += status + b'\r\n'
