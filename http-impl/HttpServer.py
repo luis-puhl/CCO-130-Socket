@@ -149,13 +149,18 @@ class HttpServer:
         if not b'HTTP' in status:
             status = b'HTTP/1.1 404 Not Found',
 
-        if not b'Date: ' in headers:
+        nowtime = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %Z").encode()
+        if not b'Date' in headers:
             # headers[b'Date'] = 'Mon, 01 Oct 2018 14:52:12 GMT'
-            headers[b'Date'] = datetime.now().strftime("%a, %d %b %Y %H:%M:%S %Z")
+            headers[b'Date'] = nowtime
+        if not b'last-modified' in headers:
+            headers[b'last-modified'] = nowtime
+        if not b'cache-control' in headers:
+            headers[b'cache-control'] = b'max-age=3600'
         if not b'server: ' in headers:
-            headers[b'server'] = 'marreco de latex'
+            headers[b'server'] = b'marreco de latex'
         if not b'Connection: ' in headers:
-            headers[b'Connection'] = 'keep-alive'
+            headers[b'Connection'] = b'keep-alive'
 
         if not b'Content-Length: ' in headers:
             headers[b'Content-Length'] = len(body)

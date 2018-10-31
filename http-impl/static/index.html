@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="/leaflet/leaflet.css" />
 </head>
 <body>
+    <div id="mapid" style="height: 100%; width: 100%"></div>
     <script src="/leaflet/leaflet.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        let zoom = params.get('zoom');
+        let lat = params.get('lat');
+        let lon = params.get('lon');
+        zoom = zoom ? parseInt(zoom) : 13;
+        lat = lat ? parseFloat(lat) : -22.0087;
+        lon = lon ? parseFloat(lon) : -47.8909;
+        const mymap = L.map('mapid').setView([lat, lon], zoom);
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+        }).addTo(mymap);
+    </script>
 </body>
 </html>
