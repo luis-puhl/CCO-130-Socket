@@ -1,73 +1,54 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 import socket
-import asyncio
-import select
+from TcpConnectionSock import TcpConnectionSock
 
 class TcpConnection:
     def __init__(self, sock=None):
-        if not sock:
-            # The address family should be AF_INET (the default), AF_INET6, AF_UNIX, AF_CAN, AF_PACKET, or AF_RDS.
-            # The socket type should be SOCK_STREAM (the default), SOCK_DGRAM, SOCK_RAW or perhaps one of the other SOCK_ constants.
-            self.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-            self.setsockopt()
-        else:
-            self.sock = sock
+        self.tcpConnectionSock = TcpConnectionSock(sock)
 
     def fileno(self):
-        # print('TcpConnection def fileno')
-        return self.sock.fileno()
+        return self.tcpConnectionSock.fileno()
 
     async def recv(self, buffer_size=4096):
         print('TcpConnection async def recv')
-        read, write, expe = select.select([self.sock], [], [], 0.01)
-        for sock in read:
-            return sock.recv(buffer_size)
+        return await self.tcpConnectionSock.recv(buffer_size)
 
     async def send(self, data=b''):
         print('TcpConnection async def send')
-        read, write, expe = select.select([], [self.sock], [], 0.01)
-        for sock in write:
-            return self.sock.send(data)
+        return await self.tcpConnectionSock.send(data)
 
     async def sendAll(self, data=b''):
         print('TcpConnection async def sendAll')
-        read, write, expe = select.select([], [self.sock], [], 0.01)
-        for sock in write:
-            return self.sock.sendAll(data)
+        return await self.tcpConnectionSock.sendAll(data)
 
     def shutdown(self, mode=socket.SHUT_RDWR):
         print('TcpConnection def shutdown')
-        return self.sock.shutdown(mode)
+        return self.tcpConnectionSock.shutdown(mode)
 
     def close(self):
         print('TcpConnection def close')
-        return self.sock.close()
+        return self.tcpConnectionSock.close()
 
     def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):
         print('TcpConnection def setsockopt')
-        # setsockopt(level, optname, value: int), Unix manual page setsockopt(2)
-        return self.sock.setsockopt(level, optname, value)
+        return self.tcpConnectionSock.setsockopt(level, optname, value)
 
     def setblocking(self, is_blocking=True):
         print('TcpConnection def setblocking')
-        return self.sock.setblocking(is_blocking)
+        return self.tcpConnectionSock.setblocking(is_blocking)
 
     def bind(self, host, port):
         print('TcpConnection def bind')
-        return self.sock.bind((host, port))
+        return self.tcpConnectionSock.bind(host, port)
 
     def listen(self, segmets_backlog=5):
         print('TcpConnection def listen')
-        # Enable a server to accept connections.
-        # If backlog is specified, it must be at least 0 (if it is lower, it is set to 0);
-        # it specifies the number of unaccepted connections that the system will allow before refusing new connections.
-        # If not specified, a default reasonable value is chosen.
-        return self.sock.listen(segmets_backlog)
+        return self.tcpConnectionSock.listen(segmets_backlog)
 
     def accept(self):
         print('TcpConnection def accept')
-        cli, addr = self.sock.accept()
+        cli, addr = self.tcpConnectionSock.accept()
         cli = TcpConnection(cli)
         print('TcpConnection accept', cli, addr)
         return cli, addr
