@@ -11,46 +11,46 @@ class TcpConnection:
         return self.tcpConnectionSock.fileno()
 
     async def recv(self, buffer_size=4096):
-        print('TcpConnection async def recv')
+        # print('TcpConnection async def recv')
         return await self.tcpConnectionSock.recv(buffer_size)
 
     async def send(self, data=b''):
-        print('TcpConnection async def send')
+        # print('TcpConnection async def send')
         return await self.tcpConnectionSock.send(data)
 
     async def sendAll(self, data=b''):
-        print('TcpConnection async def sendAll')
+        # print('TcpConnection async def sendAll')
         return await self.tcpConnectionSock.sendAll(data)
 
     def shutdown(self, mode=socket.SHUT_RDWR):
-        print('TcpConnection def shutdown')
+        # print('TcpConnection def shutdown')
         return self.tcpConnectionSock.shutdown(mode)
 
     def close(self):
-        print('TcpConnection def close')
+        # print('TcpConnection def close')
         return self.tcpConnectionSock.close()
 
     def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):
-        print('TcpConnection def setsockopt')
+        # print('TcpConnection def setsockopt')
         return self.tcpConnectionSock.setsockopt(level, optname, value)
 
     def setblocking(self, is_blocking=True):
-        print('TcpConnection def setblocking')
+        # print('TcpConnection def setblocking')
         return self.tcpConnectionSock.setblocking(is_blocking)
 
     def bind(self, host, port):
-        print('TcpConnection def bind')
+        # print('TcpConnection def bind')
         return self.tcpConnectionSock.bind(host, port)
 
     def listen(self, segmets_backlog=5):
-        print('TcpConnection def listen')
+        # print('TcpConnection def listen')
         return self.tcpConnectionSock.listen(segmets_backlog)
 
     def accept(self):
-        print('TcpConnection def accept')
+        # print('TcpConnection def accept')
         cli, addr = self.tcpConnectionSock.accept()
         cli = TcpConnection(cli)
-        print('TcpConnection accept', cli, addr)
+        # print('TcpConnection accept', cli, addr)
         return cli, addr
 
     # low level

@@ -37,4 +37,4 @@ class AppTest:
         while sock.recv(self.buffer_size) != b'':
             pass
         sock.close()
-        print('-> test -> test close')
+        print('-> test -> test close\n\n\n')

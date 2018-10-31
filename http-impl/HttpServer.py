@@ -43,13 +43,13 @@ class HttpServer:
 
         self.tcpServer.setblocking(0)
         self.tcpServer.bind(host, port)
-        print('HttpServer listening:', port)
+        # print('HttpServer listening:', port)
         pass
 
     async def shutdown(self):
-        print('HttpServer  shutdown')
+        # print('HttpServer  shutdown')
         self.out_flag = True
-        print('HttpServer out_flag', self.out_flag)
+        # print('HttpServer out_flag', self.out_flag)
         await asyncio.sleep(0.1)
 
     def select(self, rlist, wlist, xlist):
@@ -78,7 +78,7 @@ class HttpServer:
                         cli = self.tcpServer
                         cli, addr = cli.accept()
                         cli.setblocking(0)
-                        print('HttpServer Nova conexão')
+                        # print('HttpServer Nova conexão')
                         self.clients.append(cli)
                         self.reqs[cli] = b''
                     else:
@@ -86,11 +86,11 @@ class HttpServer:
             except asyncio.TimeoutError:
                 print('timeout!')
 
-        print('HttpServer  out_flag', self.out_flag)
+        # print('HttpServer  out_flag', self.out_flag)
         for cli in self.clients:
             self.close_cli(cli)
         self.close_cli(self.tcpServer)
-        print('HttpServer <server parado>')
+        # print('HttpServer <server parado>')
 
     async def read_cli(self, cli):
         self.reqs[cli] += await cli.recv(4096)
@@ -108,10 +108,10 @@ class HttpServer:
         # process
         status_code, headers, body = self.callback(req_line, req_headers, req_body)
         status = HTTP_RES_STATUS[status_code]
-        print('HttpServer (status, headers, body)', status_code, status, headers, body)
+        # print('HttpServer (status, headers, body)', status_code, status, headers, body)
         # join res
         raw_response = self.join_raw_response(status, headers, body)
-        print('HttpServer (raw_response)', raw_response)
+        # print('HttpServer (raw_response)', raw_response)
 
         n = 4096
         segs = int(len(raw_response) / n)
@@ -120,14 +120,14 @@ class HttpServer:
                 seg = raw_response[i*n:]
             else:
                 seg = raw_response[i*n:i*n+n]
-            print('HttpServer seg', seg)
+            # print('HttpServer seg', seg)
             await cli.send(seg)
 
         self.close_cli(cli)
         return
 
     def close_cli(self, cli):
-        print('HttpServer cli connection ended')
+        # print('HttpServer cli connection ended')
         cli.shutdown()
         cli.close()
         del self.reqs[cli]
@@ -142,7 +142,7 @@ class HttpServer:
         resquest_line = raw_head_split[0].split(b' ')
         header_fields = dict([i.split(b': ') for i in raw_head_split[1:]])
         body = raw_body
-        print('HttpServer ', resquest_line, header_fields, body)
+        # print('HttpServer ', resquest_line, header_fields, body)
         return resquest_line, header_fields, body
 
     def join_raw_response(self, status, headers, body):

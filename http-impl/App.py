@@ -24,18 +24,21 @@ class App:
         method, path, version = req_line
         path_str = path.decode()
         routes = {
-            '/echo.*':                                          self.echo_http,
-            '/index.html?zoom=[0-9]+&lat=[0-9]+&lon=[0-9]+':    self.index,
-            '/tile/[0-9]+/[0-9]+/[0-9]+.png':                   self.tile,
-            '/':                                                self.root,
-            'default':                                          self.static_file,
+            '/echo.*':                          self.echo_http,
+            '/index.*':                         self.index,
+            '/tile/[0-9]+/[0-9]+/[0-9]+.png':   self.tile,
+            '/':                                self.root,
+            'default':                          self.static_file,
         }
         for route_key, route_fn in routes.items():
             if route_fn and re.match('^' + route_key + '$', path_str):
+                print('\nApp route match "{0}" => "{1}"'.format(route_key, path_str))
                 status, headers, body = route_fn(req_line, req_headers, req_body)
                 return status, headers, body
 
-        status, headers, body = routes['default'](req_line, req_headers, req_body)
+        route_key = 'default'
+        print('\nApp route NOT match "{0}" => "{1}"'.format(route_key, path_str))
+        status, headers, body = routes[route_key](req_line, req_headers, req_body)
         return status, headers, body
 
     def root(self, req_line, headers, body):
@@ -63,10 +66,13 @@ class App:
 
     def index(self, req_line, headers, body):
         print('App index')
-        return self.echo_http(req_line, headers, body)
+        filename = 'static/index.html'
+        return self.file_response(filename)
+
     def tile(self, req_line, headers, body):
         print('App tile')
         return self.echo_http(req_line, headers, body)
+
     def static_file(self, req_line, headers, body):
         method, path, version = req_line
         filename = 'static' + path.decode()
@@ -77,9 +83,28 @@ class App:
             body = b'not found'
             return status, headers, body
 
+        return self.file_response(filename)
+
+    def file_response(self, filename):
         status = 200
-        headers = {}
+        headers = {
+            b'content-type': self.get_content_type(filename)
+        }
         body = b''
         with open(filename, 'br') as file:
             body += file.read()
+
         return status, headers, body
+
+    def get_content_type(self, filename):
+        content_type = b'text/plain; charset=UTF-8'
+        if re.match('.*css$', filename):
+            content_type = b'text/css; charset=UTF-8'
+        if re.match('.*js$', filename):
+            content_type = b'application/javascript; charset=UTF-8'
+        if re.match('.*ico$', filename):
+            content_type = b'image/x-icon; charset=UTF-8'
+        if re.match('.*html$', filename):
+            content_type = b'text/html; charset=UTF-8'
+        print('content_type: {0}\t{1}'.format(content_type.decode(), filename))
+        return content_type
