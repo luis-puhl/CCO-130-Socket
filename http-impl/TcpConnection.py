@@ -53,6 +53,10 @@ class TcpConnection:
         # print('TcpConnection accept', cli, addr)
         return cli, addr
 
+    def connect(self, domain='localhost', port=80):
+        # print('TcpConnection def connect')
+        return self.tcpConnectionSock.connect(domain, port)
+
     # low level
 
     def make_segment(self, src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):

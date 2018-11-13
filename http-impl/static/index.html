@@ -19,7 +19,11 @@
         lat = lat ? parseFloat(lat) : -22.0087;
         lon = lon ? parseFloat(lon) : -47.8909;
         const mymap = L.map('mapid').setView([lat, lon], zoom);
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        // L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        //     maxZoom: 18,
+        // }).addTo(mymap);
+        L.tileLayer("/tile/{z}/{x}/{y}.png", {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
             maxZoom: 18,
         }).addTo(mymap);

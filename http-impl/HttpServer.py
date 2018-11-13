@@ -4,52 +4,21 @@ from TcpConnection import TcpConnection
 from datetime import datetime
 import select
 import asyncio
-
-HTTP_REQ_VERBS = {
-    'GET': 'GET',
-    'HEAD': 'HEAD',
-    'POST': 'POST',
-    'PUT': 'PUT',
-    'DELETE': 'DELETE',
-    'CONNECT': 'CONNECT',
-    'OPTIONS': 'OPTIONS',
-    'TRACE': 'TRACE',
-    'PATCH': 'PATCH',
-}
-HTTP_REQ_VERBS_HAS_BODY = {
-    'GET': 'OPTIONAL',
-    'HEAD': False,
-    'POST': True,
-    'PUT': True,
-    'DELETE': False,
-    'CONNECT': True,
-    'OPTIONS': 'OPTIONAL',
-    'TRACE': False,
-    'PATCH': True,
-}
-HTTP_RES_STATUS = {
-    200: b'HTTP/1.1 200 OK',
-    302: b'HTTP/1.1 302 Found', # Redireciona
-    404: b'HTTP/1.1 404 Not Found',
-}
+from HttpBase import HTTP_REQ_VERBS, HTTP_REQ_VERBS_HAS_BODY, HTTP_RES_STATUS
 
 class HttpServer:
     def __init__(self, callback, host='localhost', port=8080):
         self.callback = callback
-
-        # sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-        # sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.tcpServer = TcpConnection()
-
         self.tcpServer.setblocking(0)
         self.tcpServer.bind(host, port)
-        # print('HttpServer listening:', port)
+        print('HttpServer listening:', port)
         pass
 
     async def shutdown(self):
-        # print('HttpServer  shutdown')
+        print('HttpServer  shutdown')
         self.out_flag = True
-        # print('HttpServer out_flag', self.out_flag)
+        print('HttpServer out_flag', self.out_flag)
         await asyncio.sleep(0.1)
 
     def select(self, rlist, wlist, xlist):
@@ -69,16 +38,16 @@ class HttpServer:
 
         self.out_flag = False
         while not self.out_flag:
-            # print('HttpServer http server loop')
             await asyncio.sleep(0.0001)
             try:
                 rlist, wlist, xlist = self.select(self.clients + [self.tcpServer], [], [])
                 for cli in rlist:
+                    print('HttpServer http server loop read cli')
                     if cli == self.tcpServer:
                         cli = self.tcpServer
                         cli, addr = cli.accept()
                         cli.setblocking(0)
-                        # print('HttpServer Nova conexão')
+                        print('HttpServer Nova conexão')
                         self.clients.append(cli)
                         self.reqs[cli] = b''
                     else:
@@ -86,13 +55,14 @@ class HttpServer:
             except asyncio.TimeoutError:
                 print('timeout!')
 
-        # print('HttpServer  out_flag', self.out_flag)
+        print('HttpServer  out_flag', self.out_flag)
         for cli in self.clients:
             self.close_cli(cli)
         self.close_cli(self.tcpServer)
-        # print('HttpServer <server parado>')
+        print('HttpServer <server parado>')
 
     async def read_cli(self, cli):
+        print('HttpServer read_cli')
         self.reqs[cli] += await cli.recv(4096)
         resquest = self.reqs[cli]
         if not resquest or resquest == b'':
@@ -102,16 +72,28 @@ class HttpServer:
         if not (b'\r\n\r\n' in resquest or b'\n\n' in resquest):
             # request head not here yet
             return
+        print('HttpServer header received', resquest.decode()[:40])
 
         # spit req
         req_line, req_headers, req_body = self.split_raw_request(resquest)
+        while b'Content-Length' in req_headers and req_headers[b'Content-Length'] > len(body):
+            self.reqs[cli] += await cli.recv(4096)
+            resquest = self.reqs[cli]
+            req_line, req_headers, req_body = self.split_raw_request(resquest)
+        while b'Content-Length' in req_headers and req_headers[b'Content-Length'] > len(body):
+            self.reqs[cli] = b''
+        method, path, version = req_line
         # process
-        status_code, headers, body = self.callback(req_line, req_headers, req_body)
+        response = self.callback(req_line, req_headers, req_body)
+        if asyncio.iscoroutine(response):
+            response = await asyncio.gather(response)
+        status_code, headers, body = response
         status = HTTP_RES_STATUS[status_code]
-        # print('HttpServer (status, headers, body)', status_code, status, headers, body)
         # join res
+        if not HTTP_REQ_VERBS_HAS_BODY[method.decode()]:
+            body = b''
         raw_response = self.join_raw_response(status, headers, body)
-        # print('HttpServer (raw_response)', raw_response)
+        print('HttpServer (raw_response)', raw_response.decode()[:40])
 
         n = 4096
         segs = int(len(raw_response) / n)
@@ -120,14 +102,15 @@ class HttpServer:
                 seg = raw_response[i*n:]
             else:
                 seg = raw_response[i*n:i*n+n]
-            # print('HttpServer seg', seg)
+            print('HttpServer seg', seg)
+            if cli.
             await cli.send(seg)
 
-        self.close_cli(cli)
+        # self.close_cli(cli)
         return
 
     def close_cli(self, cli):
-        # print('HttpServer cli connection ended')
+        print('HttpServer cli connection ended')
         cli.shutdown()
         cli.close()
         del self.reqs[cli]
@@ -142,7 +125,7 @@ class HttpServer:
         resquest_line = raw_head_split[0].split(b' ')
         header_fields = dict([i.split(b': ') for i in raw_head_split[1:]])
         body = raw_body
-        # print('HttpServer ', resquest_line, header_fields, body)
+        print('HttpServer ', resquest_line, header_fields, body)
         return resquest_line, header_fields, body
 
     def join_raw_response(self, status, headers, body):
@@ -157,12 +140,12 @@ class HttpServer:
             headers[b'last-modified'] = nowtime
         if not b'cache-control' in headers:
             headers[b'cache-control'] = b'max-age=3600'
-        if not b'server: ' in headers:
+        if not b'server' in headers:
             headers[b'server'] = b'marreco de latex'
-        if not b'Connection: ' in headers:
+        if not b'Connection' in headers:
             headers[b'Connection'] = b'keep-alive'
 
-        if not b'Content-Length: ' in headers:
+        if not b'Content-Length' in headers:
             headers[b'Content-Length'] = len(body)
 
         raw_response = b''

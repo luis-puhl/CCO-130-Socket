@@ -57,3 +57,6 @@ class TcpConnectionSock:
     def accept(self):
         cli, addr = self.sock.accept()
         return cli, addr
+
+    def connect(self, domain='localhost', port=80):
+        return self.sock.connect((domain, port))

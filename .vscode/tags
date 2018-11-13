@@ -1,0 +1,259 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+App	../http-impl/App.py	/^class App:$/;"	kind:class	line:8
+App.py	../http-impl/App.py	1;"	kind:file	line:1
+AppTest	../http-impl/AppTest.py	/^class AppTest:$/;"	kind:class	line:6
+AppTest.py	../http-impl/AppTest.py	1;"	kind:file	line:1
+BACKLOG	../http-impl/map_app/root-server.py	/^BACKLOG = 5 # the default$/;"	kind:variable	line:11
+BUFFER_SIZE	../http-impl/map_app/get_tile.py	/^BUFFER_SIZE = 4096$/;"	kind:variable	line:10
+BUFFER_SIZE	../http-impl/map_app/root-server.py	/^BUFFER_SIZE = 4096$/;"	kind:variable	line:12
+CRLF	../http-impl/map_app/get_tile.py	/^CRLF = "\\r\\n"$/;"	kind:variable	line:9
+Conexao	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^class Conexao:$/;"	kind:class	line:26
+DOMAINS_PREFIXES	../http-impl/map_app/get_tile.py	/^DOMAINS_PREFIXES = ['a', 'b', 'c']$/;"	kind:variable	line:11
+FLAGS_ACK	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^FLAGS_ACK = 1<<4$/;"	kind:variable	line:16
+FLAGS_ACK	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^FLAGS_ACK = 1<<4$/;"	kind:variable	line:18
+FLAGS_FIN	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^FLAGS_FIN = 1<<0$/;"	kind:variable	line:13
+FLAGS_FIN	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^FLAGS_FIN = 1<<0$/;"	kind:variable	line:15
+FLAGS_RST	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^FLAGS_RST = 1<<2$/;"	kind:variable	line:15
+FLAGS_RST	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^FLAGS_RST = 1<<2$/;"	kind:variable	line:17
+FLAGS_SYN	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^FLAGS_SYN = 1<<1$/;"	kind:variable	line:14
+FLAGS_SYN	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^FLAGS_SYN = 1<<1$/;"	kind:variable	line:16
+FORMAT	../http-impl/map_app/TimerLogger.py	/^FORMAT = '[%(asctime)s][%(levelname)s] %(message)s'$/;"	kind:variable	line:4
+HTTP_PORT	../http-impl/map_app/root-server.py	/^HTTP_PORT = 8080$/;"	kind:variable	line:10
+HTTP_REQ_VERBS	../http-impl/HttpServer.py	/^HTTP_REQ_VERBS = {$/;"	kind:variable	line:8
+HTTP_REQ_VERBS_HAS_BODY	../http-impl/HttpServer.py	/^HTTP_REQ_VERBS_HAS_BODY = {$/;"	kind:variable	line:19
+HTTP_RES_STATUS	../http-impl/HttpServer.py	/^HTTP_RES_STATUS = {$/;"	kind:variable	line:30
+HttpClient	../http-impl/HttpClient.py	/^class HttpClient:$/;"	kind:class	line:4
+HttpClient.py	../http-impl/HttpClient.py	1;"	kind:file	line:1
+HttpServer	../http-impl/HttpServer.py	/^class HttpServer:$/;"	kind:class	line:36
+HttpServer.py	../http-impl/HttpServer.py	1;"	kind:file	line:1
+LOG_FILENAME	../http-impl/map_app/TimerLogger.py	/^LOG_FILENAME = '.\/tile-cache\/app.log'$/;"	kind:variable	line:5
+MSS	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^MSS = 1460$/;"	kind:variable	line:20
+PORT	../Proxy.py	/^PORT=8080$/;"	kind:variable	line:6
+PORT	../app_socket.py	/^PORT=8080$/;"	kind:variable	line:7
+Proxy.py	../Proxy.py	1;"	kind:file	line:1
+Server	../http-impl/map_app/Server.py	/^class Server(threading.Thread):$/;"	kind:class	line:6
+Server.py	../http-impl/map_app/Server.py	1;"	kind:file	line:1
+TESTAR_PERDA_ENVIO	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^TESTAR_PERDA_ENVIO = False$/;"	kind:variable	line:24
+TcpConnection	../http-impl/TcpConnection.py	/^class TcpConnection:$/;"	kind:class	line:6
+TcpConnection	../http-impl/TcpImpl.py	/^class TcpConnection:$/;"	kind:class	line:7
+TcpConnection.py	../http-impl/TcpConnection.py	1;"	kind:file	line:1
+TcpConnectionSock	../http-impl/TcpConnectionSock.py	/^class TcpConnectionSock:$/;"	kind:class	line:6
+TcpConnectionSock.py	../http-impl/TcpConnectionSock.py	1;"	kind:file	line:1
+TcpEchoServer.py	../prot/TcpEchoServer.py	1;"	kind:file	line:1
+TcpImpl.py	../http-impl/TcpImpl.py	1;"	kind:file	line:1
+TcpSock	../prot/TcpSock.py	/^class TcpSock:$/;"	kind:class	line:6
+TcpSock.py	../prot/TcpSock.py	1;"	kind:file	line:1
+TestLocalHostServer	../http-impl/map_app/TestLocalHostServer.py	/^class TestLocalHostServer(threading.Thread):$/;"	kind:class	line:6
+TestLocalHostServer.py	../http-impl/map_app/TestLocalHostServer.py	1;"	kind:file	line:1
+Timer	../http-impl/map_app/TimerLogger.py	/^class Timer:$/;"	kind:class	line:12
+TimerLogger.py	../http-impl/map_app/TimerLogger.py	1;"	kind:file	line:1
+__enter__	../http-impl/map_app/TimerLogger.py	/^    def __enter__(self):$/;"	kind:member	line:16
+__exit__	../http-impl/map_app/TimerLogger.py	/^    def __exit__(self, *args):$/;"	kind:member	line:20
+__init__	../http-impl/App.py	/^    def __init__(self, host='localhost', port=8080):$/;"	kind:member	line:9
+__init__	../http-impl/AppTest.py	/^    def __init__(self, http_port=8080, buffer_size=4096):$/;"	kind:member	line:7
+__init__	../http-impl/HttpClient.py	/^    def __init__(self, host='localhost', port=8080):$/;"	kind:member	line:5
+__init__	../http-impl/HttpServer.py	/^    def __init__(self, callback, host='localhost', port=8080):$/;"	kind:member	line:37
+__init__	../http-impl/TcpConnection.py	/^    def __init__(self, sock=None):$/;"	kind:member	line:7
+__init__	../http-impl/TcpConnectionSock.py	/^    def __init__(self, sock=None):$/;"	kind:member	line:7
+__init__	../http-impl/TcpImpl.py	/^    def __init__(self, sock=None):$/;"	kind:member	line:8
+__init__	../http-impl/map_app/Server.py	/^    def __init__(self, http_port=8080, buffer_size=4096):$/;"	kind:member	line:7
+__init__	../http-impl/map_app/TestLocalHostServer.py	/^    def __init__(self, http_port=8080, buffer_size=4096):$/;"	kind:member	line:7
+__init__	../http-impl/map_app/TimerLogger.py	/^    def __init__(self, function_name=None):$/;"	kind:member	line:13
+__init__	../prot/TcpSock.py	/^    def __init__(self, sock=None):$/;"	kind:member	line:7
+__init__	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^    def __init__(self, id_conexao, seq_no, ack_no):$/;"	kind:member	line:27
+accept	../http-impl/TcpConnection.py	/^    def accept(self):$/;"	kind:member	line:49
+accept	../http-impl/TcpConnectionSock.py	/^    def accept(self):$/;"	kind:member	line:57
+accept	../http-impl/TcpImpl.py	/^    def accept(self):$/;"	kind:member	line:68
+accept	../http-impl/map_app/Server.py	/^    def accept(self, sock, mask, data):$/;"	kind:member	line:34
+accept	../prot/TcpSock.py	/^    def accept(self):$/;"	kind:member	line:60
+addr2str	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def addr2str(addr):$/;"	kind:function	line:19
+addr2str	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def addr2str(addr):$/;"	kind:function	line:36
+app_socket.py	../app_socket.py	1;"	kind:file	line:1
+asyncio-basics-intermediate-python-tutorial.py	../http-impl/suport/asyncio-basics-intermediate-python-tutorial.py	1;"	kind:file	line:1
+aula.py	../tcp-impl/aula.py	1;"	kind:file	line:1
+bind	../http-impl/TcpConnection.py	/^    def bind(self, host, port):$/;"	kind:member	line:41
+bind	../http-impl/TcpConnectionSock.py	/^    def bind(self, host, port):$/;"	kind:member	line:47
+bind	../http-impl/TcpImpl.py	/^    def bind(self, host, port):$/;"	kind:member	line:56
+bind	../prot/TcpSock.py	/^    def bind(self, host, port):$/;"	kind:member	line:50
+boot.py	../http-impl/boot.py	1;"	kind:file	line:1
+boot.py	../prot/boot.py	1;"	kind:file	line:1
+buff_request	../http-impl/map_app/root-server.py	/^def buff_request(cli, addr):$/;"	kind:function	line:17
+calc_checksum	../http-impl/TcpConnection.py	/^    def calc_checksum(segment):$/;"	kind:member	line:88
+calc_checksum	../http-impl/TcpImpl.py	/^    def calc_checksum(segment):$/;"	kind:member	line:107
+calc_checksum	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def calc_checksum(segment):$/;"	kind:function	line:55
+calc_checksum	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def calc_checksum(segment):$/;"	kind:function	line:82
+clientes	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^clientes = []$/;"	kind:variable	line:15
+close	../http-impl/HttpClient.py	/^    def close():$/;"	kind:member	line:13
+close	../http-impl/TcpConnection.py	/^    def close(self):$/;"	kind:member	line:29
+close	../http-impl/TcpConnectionSock.py	/^    def close(self):$/;"	kind:member	line:37
+close	../http-impl/TcpImpl.py	/^    def close(self):$/;"	kind:member	line:43
+close	../prot/TcpSock.py	/^    def close(self):$/;"	kind:member	line:40
+close_cli	../http-impl/HttpServer.py	/^    def close_cli(self, cli):$/;"	kind:member	line:129
+code_400	../statusCodes.py	/^def code_400():$/;"	kind:function	line:2
+conexoes	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^conexoes = {}$/;"	kind:variable	line:32
+connect	../prot/TcpSock.py	/^    def connect(self, host='localhost', port=8080):$/;"	kind:member	line:66
+connect_server	../Proxy.py	/^def connect_server(data):$/;"	kind:function	line:71
+consumer	../http-impl/suport/prod-cons-async.py	/^async def consumer(num):$/;"	kind:function	line:12
+contador	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_servidor.py	/^    contador = 0$/;"	kind:variable	line:14
+corotines.py	../http-impl/corotines.py	1;"	kind:file	line:1
+corpo	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	/^            corpo = b'alert("oi, %s");' % nome$/;"	kind:variable	line:27
+dados	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_servidor.py	/^    dados = b''$/;"	kind:variable	line:13
+dar	../Proxy.py	/^                dar = "%.3s" % (str(dar))$/;"	kind:variable	line:140
+dar	../Proxy.py	/^                dar = "%s KB" % (dar)$/;"	kind:variable	line:141
+dar	../Proxy.py	/^                dar = float(dar \/ 1024)$/;"	kind:variable	line:139
+dar	../Proxy.py	/^                dar = float(len(reply))$/;"	kind:variable	line:138
+data	../Proxy.py	/^            data = b''$/;"	kind:variable	line:118
+date_time_string	../app_socket.py	/^def date_time_string(timestamp=None):$/;"	kind:function	line:110
+do_GET	../app_socket.py	/^def do_GET(caminho, options):$/;"	kind:function	line:33
+do_HEAD	../app_socket.py	/^def do_HEAD(caminho, options):$/;"	kind:function	line:62
+echo_http	../http-impl/App.py	/^    def echo_http(self, req_line, headers, body):$/;"	kind:member	line:55
+exemplo_fluxo_quebrado_cliente.py	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_cliente.py	1;"	kind:file	line:1
+exemplo_fluxo_quebrado_servidor.py	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_servidor.py	1;"	kind:file	line:1
+fd	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^fd = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)$/;"	kind:variable	line:101
+fd	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^    fd = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)$/;"	kind:variable	line:180
+file_response	../http-impl/App.py	/^    def file_response(self, filename):$/;"	kind:member	line:91
+fileno	../http-impl/TcpConnection.py	/^    def fileno(self):$/;"	kind:member	line:10
+fileno	../http-impl/TcpConnectionSock.py	/^    def fileno(self):$/;"	kind:member	line:16
+fileno	../http-impl/TcpImpl.py	/^    def fileno(self):$/;"	kind:member	line:17
+fileno	../prot/TcpSock.py	/^    def fileno(self):$/;"	kind:member	line:19
+find_divisibles	../http-impl/suport/asyncio-basics-intermediate-python-tutorial.py	/^async def find_divisibles(inrange, div_by):$/;"	kind:function	line:3
+fix_checksum	../http-impl/TcpConnection.py	/^    def fix_checksum(segment, src_addr, dst_addr):$/;"	kind:member	line:101
+fix_checksum	../http-impl/TcpImpl.py	/^    def fix_checksum(segment, src_addr, dst_addr):$/;"	kind:member	line:120
+fix_checksum	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def fix_checksum(segment, src_addr, dst_addr):$/;"	kind:function	line:66
+fix_checksum	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def fix_checksum(segment, src_addr, dst_addr):$/;"	kind:function	line:95
+get_content_type	../http-impl/App.py	/^    def get_content_type(self, filename):$/;"	kind:member	line:109
+get_tile.py	../http-impl/map_app/get_tile.py	1;"	kind:file	line:1
+get_tile_file	../http-impl/map_app/get_tile.py	/^def get_tile_file(z_zoom, x_lat, y_lon):$/;"	kind:function	line:75
+get_tile_web	../http-impl/map_app/get_tile.py	/^def get_tile_web(z_zoom, x_lat, y_lon):$/;"	kind:function	line:24
+handle_connect	../http-impl/map_app/root-server.py	/^def handle_connect(cli, addr):$/;"	kind:function	line:33
+handle_echo	../prot/TcpEchoServer.py	/^async def handle_echo(reader, writer):$/;"	kind:function	line:3
+handle_echo	../prot/boot.py	/^async def handle_echo(reader, writer):$/;"	kind:function	line:48
+handle_ipv4_header	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def handle_ipv4_header(packet):$/;"	kind:function	line:25
+handle_ipv4_header	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def handle_ipv4_header(packet):$/;"	kind:function	line:42
+handle_root	../http-impl/map_app/root-server.py	/^def handle_root(req, res):$/;"	kind:function	line:14
+http-server-sock.py	../http-server-sock.py	1;"	kind:file	line:1
+index	../http-impl/App.py	/^    def index(self, req_line, headers, body):$/;"	kind:member	line:68
+index_html	../pages.py	/^def index_html():$/;"	kind:function	line:2
+init_server	../http-impl/map_app/root-server.py	/^def init_server():$/;"	kind:function	line:58
+java_html	../pages.py	/^def java_html():$/;"	kind:function	line:5
+join_raw_response	../http-impl/HttpServer.py	/^    def join_raw_response(self, status, headers, body):$/;"	kind:member	line:148
+listen	../http-impl/App.py	/^    async def listen(self):$/;"	kind:member	line:17
+listen	../http-impl/HttpServer.py	/^    async def listen(self):$/;"	kind:member	line:63
+listen	../http-impl/TcpConnection.py	/^    def listen(self, segmets_backlog=5):$/;"	kind:member	line:45
+listen	../http-impl/TcpConnectionSock.py	/^    def listen(self, segmets_backlog=5):$/;"	kind:member	line:50
+listen	../http-impl/TcpImpl.py	/^    def listen(self, segmets_backlog=5):$/;"	kind:member	line:60
+listen	../prot/TcpSock.py	/^    def listen(self, segmets_backlog=5):$/;"	kind:member	line:53
+log_info	../http-impl/map_app/TimerLogger.py	/^def log_info(msg=None):$/;"	kind:function	line:9
+logger	../http-impl/map_app/TimerLogger.py	/^logger = logging.getLogger('map-app')$/;"	kind:variable	line:7
+loop	../http-impl/suport/asyncio-basics-intermediate-python-tutorial.py	/^        loop = asyncio.get_event_loop()$/;"	kind:variable	line:26
+loop	../http-impl/suport/prod-cons-async.py	/^loop = asyncio.get_event_loop()$/;"	kind:variable	line:17
+loop	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^loop = asyncio.get_event_loop()$/;"	kind:variable	line:102
+loop	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^    loop = asyncio.get_event_loop()$/;"	kind:variable	line:181
+main	../http-impl/boot.py	/^async def main():$/;"	kind:function	line:19
+main	../http-impl/corotines.py	/^async def main():$/;"	kind:function	line:9
+main	../http-impl/suport/asyncio-basics-intermediate-python-tutorial.py	/^async def main():$/;"	kind:function	line:16
+main	../prot/TcpEchoServer.py	/^async def main():$/;"	kind:function	line:17
+main	../prot/boot.py	/^async def main():$/;"	kind:function	line:6
+make_segment	../http-impl/TcpConnection.py	/^    def make_segment(self, src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):$/;"	kind:member	line:58
+make_segment	../http-impl/TcpImpl.py	/^    def make_segment(self, src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):$/;"	kind:member	line:77
+make_segment	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def make_segment(src, dst, seq, ack, flags, window_size=1024, chk_sum=0, urg_ptr=0):$/;"	kind:function	line:52
+make_synack	../http-impl/TcpConnection.py	/^    def make_synack(self, src_port, dst_port, seq_no, ack_no):$/;"	kind:member	line:85
+make_synack	../http-impl/TcpImpl.py	/^    def make_synack(self, src_port, dst_port, seq_no, ack_no):$/;"	kind:member	line:104
+make_synack	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def make_synack(src_port, dst_port, ack_no):$/;"	kind:function	line:49
+make_synack	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def make_synack(src_port, dst_port, seq_no, ack_no):$/;"	kind:function	line:79
+metodoStr	../app_socket.py	/^            metodoStr = metodo.decode("utf-8")$/;"	kind:variable	line:145
+myScript_js	../pages.py	/^def myScript_js():$/;"	kind:function	line:26
+nome	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	/^            nome = caminho.replace(b'\/', b'').replace(b'.js', b'')$/;"	kind:variable	line:26
+pages.py	../pages.py	1;"	kind:file	line:1
+parse_data	../Proxy.py	/^def parse_data(data):$/;"	kind:function	line:20
+parse_headers	../Proxy.py	/^def parse_headers(reply):$/;"	kind:function	line:64
+pedaco	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	/^            pedaco = cli.recv(1500)$/;"	kind:variable	line:16
+prod-cons-async.py	../http-impl/suport/prod-cons-async.py	1;"	kind:file	line:1
+producer	../http-impl/suport/prod-cons-async.py	/^async def producer(num):$/;"	kind:function	line:7
+q	../http-impl/suport/prod-cons-async.py	/^q = asyncio.Queue()$/;"	kind:variable	line:4
+raw_recv	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def raw_recv(fd):$/;"	kind:function	line:80
+raw_recv	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def raw_recv(fd):$/;"	kind:function	line:141
+read	../http-impl/map_app/Server.py	/^    def read(self, cliSock, mask, data):$/;"	kind:member	line:40
+read_cli	../http-impl/HttpServer.py	/^    async def read_cli(self, cli):$/;"	kind:member	line:95
+recieve	../http-impl/map_app/TestLocalHostServer.py	/^    def recieve(self):$/;"	kind:member	line:21
+recv	../http-impl/TcpConnection.py	/^    async def recv(self, buffer_size=4096):$/;"	kind:member	line:13
+recv	../http-impl/TcpConnectionSock.py	/^    async def recv(self, buffer_size=4096):$/;"	kind:member	line:19
+recv	../http-impl/TcpImpl.py	/^    async def recv(self, buffer_size=4096):$/;"	kind:member	line:21
+recv	../prot/TcpSock.py	/^    async def recv(self, buffer_size=4096):$/;"	kind:member	line:22
+req	../app_socket.py	/^            req = b''$/;"	kind:variable	line:134
+req	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^            req = reqs[cli]$/;"	kind:variable	line:33
+req	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	/^        req = b''$/;"	kind:variable	line:14
+req	../http-server-sock.py	/^    req = cli.recv(1024)$/;"	kind:variable	line:35
+reqs	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^reqs = {}$/;"	kind:variable	line:17
+resp	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^                resp = b"HTTP\/1.0 200 OK\\r\\nContent-Length: %d\\r\\n\\r\\n" % len(texto)$/;"	kind:variable	line:40
+return_codes	../app_socket.py	/^return_codes = {$/;"	kind:variable	line:26
+root	../http-impl/App.py	/^    def root(self, req_line, headers, body):$/;"	kind:member	line:45
+root-server.py	../http-impl/map_app/root-server.py	1;"	kind:file	line:1
+route	../http-impl/App.py	/^    def route(self, req_line={}, req_headers={}, req_body=b''):$/;"	kind:member	line:20
+run	../http-impl/map_app/Server.py	/^    def run(self):$/;"	kind:member	line:15
+run	../http-impl/map_app/TestLocalHostServer.py	/^    def run(self):$/;"	kind:member	line:14
+run_app	../http-impl/boot.py	/^async def run_app():$/;"	kind:function	line:8
+run_test	../http-impl/AppTest.py	/^    async def run_test(self):$/;"	kind:member	line:11
+s	../Proxy.py	/^    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	kind:variable	line:10
+s	../app_socket.py	/^s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)$/;"	kind:variable	line:9
+s	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_cliente.py	/^s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	kind:variable	line:5
+s	../http-impl/expemplos-gist-matias/exemplo_fluxo_quebrado_servidor.py	/^s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	kind:variable	line:5
+s	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^s = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)$/;"	kind:variable	line:7
+s	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	/^s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	kind:variable	line:5
+s	../http-server-sock.py	/^s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	kind:variable	line:10
+say_after	../http-impl/corotines.py	/^async def say_after(delay, what):$/;"	kind:function	line:4
+select	../http-impl/HttpServer.py	/^    def select(self, rlist, wlist, xlist):$/;"	kind:member	line:55
+send	../http-impl/TcpConnection.py	/^    async def send(self, data=b''):$/;"	kind:member	line:17
+send	../http-impl/TcpConnectionSock.py	/^    async def send(self, data=b''):$/;"	kind:member	line:24
+send	../http-impl/TcpImpl.py	/^    async def send(self, data=b''):$/;"	kind:member	line:27
+send	../prot/TcpSock.py	/^    async def send(self, data=b''):$/;"	kind:member	line:27
+send	../tcp-impl/aula.py	/^def send(data):$/;"	kind:function	line:3
+sendAll	../http-impl/TcpConnection.py	/^    async def sendAll(self, data=b''):$/;"	kind:member	line:21
+sendAll	../http-impl/TcpConnectionSock.py	/^    async def sendAll(self, data=b''):$/;"	kind:member	line:29
+sendAll	../http-impl/TcpImpl.py	/^    async def sendAll(self, data=b''):$/;"	kind:member	line:33
+sendAll	../prot/TcpSock.py	/^    async def sendAll(self, data=b''):$/;"	kind:member	line:32
+send_error	../app_socket.py	/^def send_error(ret_code):$/;"	kind:function	line:92
+send_next	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def send_next(fd, conexao):$/;"	kind:function	line:103
+send_request	../http-impl/HttpClient.py	/^    def send_request(headers=(), body=b''):$/;"	kind:member	line:9
+servidor_http_com_select.py	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	1;"	kind:file	line:1
+servidor_http_conexao_persistente.py	../http-impl/expemplos-gist-matias/servidor_http_conexao_persistente.py	1;"	kind:file	line:1
+setblocking	../http-impl/TcpConnection.py	/^    def setblocking(self, is_blocking=True):$/;"	kind:member	line:37
+setblocking	../http-impl/TcpConnectionSock.py	/^    def setblocking(self, is_blocking=True):$/;"	kind:member	line:44
+setblocking	../http-impl/TcpImpl.py	/^    def setblocking(self, is_blocking=True):$/;"	kind:member	line:52
+setblocking	../prot/TcpSock.py	/^    def setblocking(self, is_blocking=True):$/;"	kind:member	line:47
+setsockopt	../http-impl/TcpConnection.py	/^    def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):$/;"	kind:member	line:33
+setsockopt	../http-impl/TcpConnectionSock.py	/^    def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):$/;"	kind:member	line:40
+setsockopt	../http-impl/TcpImpl.py	/^    def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):$/;"	kind:member	line:47
+setsockopt	../prot/TcpSock.py	/^    def setsockopt(self, level=socket.SOL_SOCKET, optname=socket.SO_REUSEADDR, value=1):$/;"	kind:member	line:43
+shutdown	../http-impl/App.py	/^    async def shutdown(self):$/;"	kind:member	line:13
+shutdown	../http-impl/HttpServer.py	/^    async def shutdown(self):$/;"	kind:member	line:49
+shutdown	../http-impl/TcpConnection.py	/^    def shutdown(self, mode=socket.SHUT_RDWR):$/;"	kind:member	line:25
+shutdown	../http-impl/TcpConnectionSock.py	/^    def shutdown(self, mode=socket.SHUT_RDWR):$/;"	kind:member	line:34
+shutdown	../http-impl/TcpImpl.py	/^    def shutdown(self, mode=socket.SHUT_RDWR):$/;"	kind:member	line:39
+shutdown	../prot/TcpSock.py	/^    def shutdown(self, mode=socket.SHUT_RDWR):$/;"	kind:member	line:37
+split_raw_request	../http-impl/HttpServer.py	/^    def split_raw_request(self, raw_request):$/;"	kind:member	line:136
+ssl_connect_server	../Proxy.py	/^def ssl_connect_server(webserver,port):$/;"	kind:function	line:105
+static_file	../http-impl/App.py	/^    def static_file(self, req_line, headers, body):$/;"	kind:member	line:86
+statusCodes.py	../statusCodes.py	1;"	kind:file	line:1
+str2addr	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def str2addr(addr):$/;"	kind:function	line:22
+str2addr	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	/^def str2addr(addr):$/;"	kind:function	line:39
+tcp_echo_client	../prot/boot.py	/^async def tcp_echo_client(message):$/;"	kind:function	line:16
+tcp_echo_server	../prot/boot.py	/^async def tcp_echo_server():$/;"	kind:function	line:35
+tcp_rawsock.py	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	1;"	kind:file	line:1
+tcp_rawsock_v2.py	../tcp-impl/exemplos-gist-matias/tcp_rawsock_v2.py	1;"	kind:file	line:1
+tcp_seg_format	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def tcp_seg_format():$/;"	kind:function	line:34
+test_app	../http-impl/boot.py	/^async def test_app():$/;"	kind:function	line:15
+texto	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^                    texto = b"Hello " + path$/;"	kind:variable	line:37
+texto	../http-impl/expemplos-gist-matias/servidor_http_com_select.py	/^                    texto = b"Num entendi"$/;"	kind:variable	line:39
+tile	../http-impl/App.py	/^    def tile(self, req_line, headers, body):$/;"	kind:member	line:73
+timer_test	../tcp-impl/exemplos-gist-matias/tcp_rawsock.py	/^def timer_test(src_addr, src_port):$/;"	kind:function	line:75
+type	../prot/TcpSock.py	/^    def type(self):$/;"	kind:member	line:16
+version_http	../app_socket.py	/^version_http = "HTTP\/1.1"$/;"	kind:variable	line:15
+version_system	../app_socket.py	/^version_system = "CCO-130 Socket"$/;"	kind:variable	line:14
+write	../http-impl/map_app/Server.py	/^    def write(self, cliSock, mask, data):$/;"	kind:member	line:55
+write_asycn	../http-impl/map_app/Server.py	/^    def write_asycn(self, clientSock, msg):$/;"	kind:member	line:52
