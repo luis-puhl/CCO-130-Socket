@@ -92,16 +92,15 @@ def strip_head(head):
     FragmentOffset, TimeToLive, \
     Protocol, HeaderChecksum, SourceIPAddress, DestinationIPAddress, Options
 
-def raw_recv(recv_fd):
-    packet = recv_fd.recv(2400)
+def raw_recv_ip(datagrama):
     ticktockman()
-    # print('recebido pacote de %d bytes' % len(packet))
+    # print('recebido pacote de %d bytes' % len(datagrama))
 
     # introduzir erro
     if random.randrange(10) > 8:
         return
 
-    head, body = guilotine(packet)
+    head, body = guilotine(datagrama)
 
     Version, IHL, DSCP, ECN, TotalLength, Identification, Flags, FlagsExplicit, FragmentOffset, \
     TimeToLive, \
@@ -132,7 +131,7 @@ def raw_recv(recv_fd):
         'SourceIPAddress:', SourceIPAddress,
         'DestinationIPAddress:', DestinationIPAddress,
         'Options:', Options,
-        'Len:', len(packet),
+        'Len:', len(datagrama),
         'LenBody:', len(body),
     )
 
@@ -169,6 +168,10 @@ def ticktockman():
         if pacotes[tripla]['Ticktockman'] == 0:
             print('\nTicktockman got you Harlequin\n')
             del pacotes[tripla]
+
+def raw_recv(recv_fd):
+    packet = recv_fd.recv(2400)
+    raw_recv_ip(packet)
 
 if __name__ == '__main__':
     # Ver http://man7.org/linux/man-pages/man7/raw.7.html
