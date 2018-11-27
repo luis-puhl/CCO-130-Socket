@@ -1,8 +1,7 @@
 import socket
 import asyncio
 import struct
-import t3_plus
-
+import random
 
 ETH_P_ALL = 0x0003
 ETH_P_IP  = 0x0800
@@ -10,7 +9,7 @@ ETH_P_IP  = 0x0800
 ETH_P_IP_BIN = struct.pack('!H', ETH_P_IP)
 
 ICMP = 0x01  # https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
-
+pacotes = {}
 
 # Coloque aqui o endereço de destino para onde você quer mandar o ping
 # dest_ip = '127.0.0.1'
@@ -34,6 +33,9 @@ src_mac = '0c:84:dc:d4:98:0b'
 
 def ip_addr_to_bytes(addr):
     return bytes(map(int, addr.split('.')))
+
+def bytes_to_ip_addr(byte):
+    return '.'.join(str(ord(s)) for s in struct.unpack('!4c', byte))
 
 def mac_addr_to_bytes(addr):
     return bytes(int('0x'+s, 16) for s in addr.split(':'))
@@ -89,7 +91,131 @@ def calc_checksum(segment):
     checksum = ~checksum
     return checksum & 0xffff
 
-def raw_recv(fd):
+def guilotine(packet):
+    version = packet[0] >> 4
+    IHL = packet[0] & 0x0f
+    if version != 4:
+        print('Não é ipv4. --> ', version)
+        return None
+    # The Internet Header Length (IHL) field has 4 bits
+    # IHL diz quantas 'linhas' de 4 bytes tem o cabeçalho
+    head = packet[:IHL*4]
+    body = packet[IHL*4:]
+
+    return head, body
+
+def strip_head(head):
+    # Version, IHL, DSCP, ECN, TotalLength, Identification, Flags, FragmentOffset, TimeToLive,
+    # Protocol, HeaderChecksum, SourceIPAddress, DestinationIPAddress, Options
+    VersionIHL, DSCPECN, TotalLength, Identification, FlagsFragmentOffset, TimeToLive, Protocol, \
+    HeaderChecksum, SourceIPAddress, DestinationIPAddress = struct.unpack('!BBHHHBBHII', head[:20])
+
+    SourceIPAddress = bytes_to_ip_addr(head[12:16])
+    DestinationIPAddress = bytes_to_ip_addr(head[16:20])
+
+    Version = VersionIHL >> 4
+    IHL = VersionIHL & 0x0f
+    DSCP = DSCPECN >> 2
+    ECN = DSCPECN & 0x03
+    # Flags -> A three-bit field follows and is used to control or identify fragments.
+    # They are (in order, from most significant to least significant):
+    # bit 0: Reserved; must be zero.[note 1]
+    # bit 1: Don't Fragment (DF)
+    # bit 2: More Fragments (MF)
+    Flags = (FlagsFragmentOffset & 0b1110000000000000) >> 13
+    # 0b 1 1111 1111 1111
+    FragmentOffset = FlagsFragmentOffset & 0b0001111111111111
+    Options = head[20:]
+
+    FlagsExplicit = {
+        'Evilbit': Flags & 0b100 > 0,
+        'DontFragment': Flags & 0b010 > 0,
+        'MoreFragments': Flags & 0b001 > 0,
+    }
+    # 100 000000000000
+    return Version, IHL, DSCP, ECN, TotalLength, Identification, Flags, FlagsExplicit, \
+    FragmentOffset, TimeToLive, \
+    Protocol, HeaderChecksum, SourceIPAddress, DestinationIPAddress, Options
+
+def raw_recv_ip(datagrama):
+    ticktockman()
+    print('recebido pacote de %d bytes' % len(datagrama))
+
+    # introduzir erro
+    if random.randrange(10) > 8:
+        return
+
+    head, body = guilotine(datagrama)
+
+    Version, IHL, DSCP, ECN, TotalLength, Identification, Flags, FlagsExplicit, FragmentOffset, \
+    TimeToLive, \
+    Protocol, HeaderChecksum, SourceIPAddress, DestinationIPAddress, Options = strip_head(head)
+
+    if ICMP != Protocol:
+        print('Protocolo estranho', Protocol)
+        return None
+
+    if DestinationIPAddress != src_ip:
+        print('Ip destino não é ', src_ip)
+        return None
+
+    print(
+        'IPv4-->\t',
+        'Version:', Version,
+        'IHL:', IHL,
+        'DSCP:', DSCP,
+        'ECN:', ECN,
+        'TotalLength:', TotalLength,
+        'Identification:', Identification,
+        'FlagsExplicit:', FlagsExplicit,
+        'FragmentOffset:', FragmentOffset,
+
+        '\nIPv4-->\t',
+        'TimeToLive:', TimeToLive,
+        'Protocol:', Protocol,
+        'HeaderChecksum:', HeaderChecksum,
+        'SourceIPAddress:', SourceIPAddress,
+        'DestinationIPAddress:', DestinationIPAddress,
+        'Options:', Options,
+        'Len:', len(datagrama),
+        'LenBody:', len(body),
+    )
+
+    # remonta pacote
+    tripla = (SourceIPAddress, DestinationIPAddress, Identification)
+    if not tripla in pacotes.keys():
+        pacotes[tripla] = {'size': 0, 'payload': {}, 'maxSize': None, 'Ticktockman': 200}
+    # reseta o tempo de vida do pacote parcial
+    pacotes[tripla]['Ticktockman'] = 200
+
+    if FlagsExplicit['MoreFragments']:
+        pacotes[tripla]['maxSize'] = FragmentOffset*8 + TotalLength - len(head)
+
+    if not FragmentOffset in pacotes[tripla]['payload'].keys():
+        pacotes[tripla]['size'] += len(body)
+        pacotes[tripla]['payload'][FragmentOffset] = body
+
+    if pacotes[tripla]['maxSize'] == pacotes[tripla]['size']:
+        print('\nPacote Completo')
+        ordenado = sorted(pacotes[tripla]['payload'].keys())
+        for i in ordenado:
+            print(pacotes[tripla]['payload'][i], end = '')
+        del pacotes[tripla]
+        print('\n')
+
+def ticktockman():
+    """
+    A ideia dessa função é que o buffer de pacotes inacabados é limpo proporcionalmente
+    ao número de pacotes recebidos.
+    Como padrão, 200 pacotes podem ser recebidos entre uma parcela e outra do segmentado.
+    """
+    for tripla in pacotes.copy().keys():
+        pacotes[tripla]['Ticktockman'] -= 1
+        if pacotes[tripla]['Ticktockman'] == 0:
+            print('\nTicktockman got you Harlequin\n')
+            del pacotes[tripla]
+
+def raw_recv_eth(fd):
     """Etapa 4
         Modifique o código da Etapa 3 para utilizar um único socket do tipo
         `socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))`.
@@ -127,8 +253,8 @@ def raw_recv(fd):
 
     # Filtro completo
     if bytes_to_mac_addr(dst) == src_mac and bytes_to_mac_addr(src) == dest_mac and payloadtype == ETH_P_IP_BIN:
-        print('Repassando para IP', payload[:30].hex())
-        # raw_rcv_ip(payload)
+        # print('Repassando para IP', payload[:30].hex())
+        raw_recv_ip(payload)
 
 
 if __name__ == '__main__':
@@ -137,6 +263,6 @@ if __name__ == '__main__':
     fd.bind((if_name, 0))
 
     loop = asyncio.get_event_loop()
-    loop.add_reader(fd, raw_recv, fd)
+    loop.add_reader(fd, raw_recv_eth, fd)
     asyncio.get_event_loop().call_later(1, send_ping, fd)
     loop.run_forever()
