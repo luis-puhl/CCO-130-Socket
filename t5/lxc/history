@@ -1,0 +1,30 @@
+ 9993  man hexdump
+ 9994  hd Screenshot\ from\ 2018-07-20\ 15-21-49__.png | less
+ 9995  lxc list
+ 9996  sudo apt install lxd lxd-client
+ 9997  lxc list
+ 9998  sudo usermod -a -G lxd puhl
+ 9999  lxc list
+10000  exit
+10001  lxc list
+10002  sudo lxd init
+10003  lxc launch ubuntu:16.04 first
+10004  lxc list
+10005  lsc exec first -- /bin/bash
+10006  lxc exec first -- /bin/bash
+10007  lsc exec first -- apt-get update
+10008  lxc exec first -- apt-get update
+10009  cd Documents/mestrado/Redes/trabalho/CCO-130-Socket/
+10010  mkidr t5
+10011  mkdir t5
+10012  cd t5
+10013  l
+10014  mkdir lxc
+10015  cd lxc
+10016  lxc file pull first/etc/hosts .
+10017  l
+10018  cat hosts
+10019  lxc file push hosts first/tmp/
+10020  lxc stop first
+10021  lxc delete first
+10022  history | tail >> history
