@@ -249,7 +249,7 @@ def raw_recv_eth(fd):
     src = frame[6:12]
     payloadtype = frame[12:14]
     payload = frame[14:]
-    print('Ethernet-->\tdst:', bytes_to_mac_addr(dst), '\tsrc:', bytes_to_mac_addr(src), '\ttype:', payloadtype.hex())
+    print('\nEthernet-->\tdst:', bytes_to_mac_addr(dst), '\tsrc:', bytes_to_mac_addr(src), '\ttype:', payloadtype.hex())
 
     # Filtro completo
     if bytes_to_mac_addr(dst) == src_mac and bytes_to_mac_addr(src) == dest_mac and payloadtype == ETH_P_IP_BIN:
