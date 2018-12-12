@@ -14,22 +14,22 @@ class FlagsBitsTCP(ctypes.LittleEndianStructure):
         ]
 class FlagsTCP(ctypes.Union):
     # Flags (9 bits) (aka Control bits) Contains 9 1-bit flags
-    FLAG_NS  = 1<<8 #(1 bit): ECN-nonce - concealment protection (experimental: see RFC 3540).
-    FLAG_CWR = 1<<7 #(1 bit): Congestion Window Reduced (CWR) flag is set by the sending host to indicate that
+    NS  = 1<<8 #(1 bit): ECN-nonce - concealment protection (experimental: see RFC 3540).
+    CWR = 1<<7 #(1 bit): Congestion Window Reduced (CWR) flag is set by the sending host to indicate that
         # it received a TCP segment with the ECE flag set and had responded in congestion control mechanism (added to header by RFC 3168).
-    FLAG_ECE = 1<<6 #(1 bit): ECN-Echo has a dual role, depending on the value of the SYN flag. It indicates:
+    ECE = 1<<6 #(1 bit): ECN-Echo has a dual role, depending on the value of the SYN flag. It indicates:
         # If the SYN flag is set #(1), that the TCP peer is ECN capable.
         # If the SYN flag is clear (0), that a packet with Congestion Experienced flag set (ECN=11) in the IP header was
         # received during normal transmission (added to header by RFC 3168). This serves as an indication of network
         # congestion (or impending congestion) to the TCP sender.
-    FLAG_URG = 1<<5 #(1 bit): indicates that the Urgent pointer field is significant
-    FLAG_ACK = 1<<4 #(1 bit): indicates that the Acknowledgment field is significant. All packets after the initial SYN
+    URG = 1<<5 #(1 bit): indicates that the Urgent pointer field is significant
+    ACK = 1<<4 #(1 bit): indicates that the Acknowledgment field is significant. All packets after the initial SYN
     # packet sent by the client should have this flag set.
-    FLAG_PSH = 1<<3 #(1 bit): Push function. Asks to push the buffered data to the receiving application.
-    FLAG_RST = 1<<2 #(1 bit): Reset the connection
-    FLAG_SYN = 1<<1 #(1 bit): Synchronize sequence numbers. Only the first packet sent from each end should have this flag set.
+    PSH = 1<<3 #(1 bit): Push function. Asks to push the buffered data to the receiving application.
+    RST = 1<<2 #(1 bit): Reset the connection
+    SYN = 1<<1 #(1 bit): Synchronize sequence numbers. Only the first packet sent from each end should have this flag set.
     # Some other flags and fields change meaning based on this flag, and some are only valid when it is set, and others when it is clear.
-    FLAG_FIN = 1<<0 #(1 bit): Last packet from sender.
+    FIN = 1<<0 #(1 bit): Last packet from sender.
     _fields_ = [("b", FlagsBitsTCP), ("asbyte", ctypes.c_uint16)]
     def __str__(self):
         return hex(self.asbyte) + ' ' + ', '.join([key for key, value in {
@@ -50,7 +50,7 @@ ETH_P_IP_BIN = struct.pack('!H', ETH_P_IP)
 
 pacotes = {}
 dest_ip = '10.216.22.1'
-src_ip = '10.216.22.219'
+LOCAL_IP_STRING = '10.216.22.219'
 if_name = 'eth0'
 dest_mac = 'fe:aa:fd:e8:df:7a'
 src_mac = '00:16:3e:0b:58:0c'
@@ -66,9 +66,13 @@ TESTAR_PERDA_ENVIO = False
 class Conexao:
     def __init__(self, id_conexao, seq_no, ack_no):
         self.id_conexao = id_conexao
+        self.int_rem_ip, self.rem_port, self.int_loc_ip, self.loc_port = id_conexao
+        self.bytes_loc_ip = int2bytes(self.int_loc_ip)
+        self.bytes_rem_ip = int2bytes(self.int_rem_ip)
         self.seq_no = seq_no
         self.ack_no = ack_no
-        self.send_queue = b"HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\n\r\n" + 1000000 * b"hello pombo\n"
+        self.send_queue = b"HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\n\r\n" + 1000 * b"hello pombo\n"
+        self.payload = b''
 conexoes = {}
 
 def addr2str(addr):
@@ -77,16 +81,16 @@ def addr2str(addr):
 def str2addr(addr):
     return bytes(int(x) for x in addr.split('.'))
 
-def int_to_bits(x):
+def int2bytes(x):
     return x.to_bytes((x.bit_length() + 7) // 8, byteorder='little')
 
-def bits_to_int(x):
+def bytes2int(x):
     return int.from_bytes(x, byteorder='little')
 
-def ip_addr_to_bytes(addr):
-    return bytes(map(int, addr.split('.')))
+def ip_addr_to_bytes(str_addr):
+    return bytes(map(int, str_addr.split('.')))
 
-def bytes_to_ip_addr(byte):
+def bytes2ip_str(byte):
     return '.'.join(str(ord(s)) for s in struct.unpack('!4c', byte))
 
 def mac_addr_to_bytes(addr):
@@ -96,7 +100,7 @@ def bytes_to_mac_addr(byte):
     byte = byte.hex()
     return ':'.join(byte[i:i+2] for i in range(0, len(byte), 2))
 
-def calc_checksum(segment):
+def calc_checksum_tcp(segment):
     if len(segment) % 2 == 1:
         segment += b'\x00'
     checksum = 0
@@ -108,59 +112,102 @@ def calc_checksum(segment):
     checksum = ~checksum
     return checksum & 0xffff
 
-def fix_checksum(segment, src_addr, dst_addr):
-    pseudohdr = str2addr(src_addr) + str2addr(dst_addr) + \
-        struct.pack('!HH', 0x0006, len(segment))
+def fix_checksum_tcp(segment, bytes_src_ip, bytes_dst_ip):
+    pseudohdr = bytes_src_ip + bytes_dst_ip + struct.pack('!HH', 0x0006, len(segment))
     seg = bytearray(segment)
     seg[16:18] = b'\x00\x00'
-    seg[16:18] = struct.pack('!H', calc_checksum(pseudohdr + seg))
+    seg[16:18] = struct.pack('!H', calc_checksum_tcp(pseudohdr + seg))
     return bytes(seg)
 
 def send_next_tcp(fd, conexao):
     payload = conexao.send_queue[:MSS]
     conexao.send_queue = conexao.send_queue[MSS:]
+    print('TCP-->\t', 'send_next_tcp len', len(payload), '\t remainder', len(conexao.send_queue))
 
-    (dst_addr, dst_port, src_addr, src_port) = conexao.id_conexao
+    # send payload
+    ack_flags = FlagsTCP()
+    ack_flags.b.ACK = 1
+    raw_send_tcp(
+        fd,
+        bytes_src_ip=conexao.bytes_loc_ip,
+        bytes_dst_ip=conexao.bytes_rem_ip,
+        src_port=conexao.loc_port,
+        dst_port=conexao.rem_port,
+        seq_no=conexao.seq_no,
+        ack_no=conexao.ack_no,
+        flags=ack_flags,
+        window_size=1024,
+        payload=payload
+    )
+    conexao.seq_no = (conexao.seq_no + len(payload)) & 0xffffffff
 
+    if len(conexao.send_queue) == 0:
+        # send FIN ACK, close connection
+        print('TCP-->\t', 'Fechando conexão')
+        fin_ack_flags = FlagsTCP()
+        fin_ack_flags.b.FIN = 1
+        fin_ack_flags.b.ACK = 1
+        raw_send_tcp(
+            fd,
+            bytes_src_ip=conexao.bytes_loc_ip,
+            bytes_dst_ip=conexao.bytes_rem_ip,
+            src_port=conexao.loc_port,
+            dst_port=conexao.rem_port,
+            seq_no=conexao.seq_no,
+            ack_no=conexao.ack_no,
+            flags=fin_ack_flags,
+        )
+        del conexoes[conexao.id_conexao]
+    else:
+        asyncio.get_event_loop().call_later(.001, send_next_tcp, fd, conexao)
+
+def raw_send_tcp(fd, bytes_src_ip, bytes_dst_ip, src_port, dst_port, seq_no, ack_no, flags, window_size=0, payload=b''):
+    """
+        | Len      | Meanig                         |
+        |----------|--------------------------------|
+        | 16 16    | src-port#, dst-port#           |
+        | 32       | sq#                            |
+        | 32       | ack#                           |
+        | 4 3 9 16 | hed-len, empty, flags, Wind    |
+        | 16 16    | chk-sum, urg-ptr               |
+        | <var>    | Options                        |
+        | <var>    | Data                           |
+        #
+        Flags = (URG, ACK, PSH, RST, SYN, FIN)
+        Options = (MMS, win mgm, RFC 854 1323)
+
+        0xffff = 16 bits = hed-len + emtpy + flags
+        header length = Data offset: 4 bits ()
+        empty = Reserved: 3 bits
+        Flags = Control bits: 9 bits
+    """
+    print('TCP-->\t', 'raw_send_tcp len', len(payload))
+    hed_len = 5
+    empty = 0
+    flags_line = ((hed_len <<12) & 0xf000) | ((empty <<9) & 0x0e00) | (flags.asbyte & 0x01ff)
+    chk_sum = 0x0000
+    urg_ptr = 0x0000
     segment = struct.pack(
         '!HHIIHHHH',
         src_port,
         dst_port,
-        conexao.seq_no,
-        conexao.ack_no,
-        (5<<12)|FLAGS_ACK,
-        1024,
-        0,
-        0
+        seq_no,
+        ack_no,
+        flags_line,
+        window_size,
+        chk_sum,
+        urg_ptr
     ) + payload
-
-    conexao.seq_no = (conexao.seq_no + len(payload)) & 0xffffffff
-
-    segment = fix_checksum(segment, src_addr, dst_addr)
+    segment = fix_checksum_tcp(segment, bytes_src_ip, bytes_dst_ip)
     send_ip(
         fd=fd,
         msg=segment,
         protocol=TCP,
-        loc_ip=ip_addr_to_bytes(src_ip),
-        dst_ip=ip_addr_to_bytes(dst_addr)
+        bytes_loc_ip=bytes_src_ip,
+        bytes_dst_ip=bytes_dst_ip
     )
 
-    if conexao.send_queue == b"":
-        segment = struct.pack('!HHIIHHHH', src_port, dst_port, conexao.seq_no,
-                          conexao.ack_no, (5<<12)|FLAGS_FIN|FLAGS_ACK,
-                          0, 0, 0)
-        segment = fix_checksum(segment, src_addr, dst_addr)
-        send_ip(
-            fd=fd,
-            msg=segment,
-            protocol=TCP,
-            loc_ip=ip_addr_to_bytes(src_ip),
-            dst_ip=ip_addr_to_bytes(dst_addr)
-        )
-    else:
-        asyncio.get_event_loop().call_later(.001, send_next_tcp, fd, conexao)
-
-def raw_recv_tcp(fd, src_addr, dst_addr, segment):
+def raw_recv_tcp(fd, int_src_addr, int_dst_addr, segment):
     print('TCP-->\t', 'recebido segmento de %d bytes' % len(segment))
     # src_addr, dst_addr, segment = handle_ipv4_header(packet)
     src_port, dst_port, seq_no, ack_no, flags_line, window_size, checksum, urg_ptr = struct.unpack('!HHIIHHHH', segment[:20])
@@ -172,12 +219,15 @@ def raw_recv_tcp(fd, src_addr, dst_addr, segment):
     options = segment[20:hed_len*4]
     payload = segment[hed_len*4:]
 
-    id_conexao = (src_addr, src_port, dst_addr, dst_port)
+    bytes_src_ip = int2bytes(int_src_addr)
+    bytes_dst_ip = int2bytes(int_dst_addr)
+    str_src_addr = addr2str(bytes_src_ip)
+    str_dst_addr = addr2str(bytes_dst_ip)
 
     print(
         'TCP Recebido-->\t',
-        '\n\tsrc_ip                         =>', src_addr, addr2str(int_to_bits(src_addr)),
-        '\n\tdst_ip                         =>', dst_addr, addr2str(int_to_bits(dst_addr)),
+        '\n\tsrc_ip                         =>', hex(int_src_addr), str_src_addr,
+        '\n\tdst_ip                         =>', hex(int_dst_addr), str_dst_addr,
         '\n\tsrc_port | dst_port            =>', src_port, '|', dst_port,
         '\n\tseq_no                         =>', seq_no,
         '\n\tack_no                         =>', ack_no,
@@ -189,102 +239,89 @@ def raw_recv_tcp(fd, src_addr, dst_addr, segment):
 
     if dst_port != 8080:
         print('TCP-->\t', 'porta não usada', dst_port)
-        segment = struct.pack('!HHIIHHHH', dst_port, src_port, 0,
-                          seq_no, (5<<12)|FLAGS_RST|FLAGS_ACK,
-                          0, 0, 0)
-                fix_checksum(segment, src_addr, dst_addr)
-        segment = fix_checksum(segment, src_addr, dst_addr)
-        send_ip(
-            fd=fd,
-            msg=segment,
-            protocol=TCP,
-            loc_ip=ip_addr_to_bytes(src_ip),
-            dst_ip=ip_addr_to_bytes(dst_addr)
+        rst_ack_flags = FlagsTCP()
+        rst_ack_flags.b.RST = 1
+        rst_ack_flags.b.ACK = 1
+        raw_send_tcp(
+            fd,
+            bytes_src_ip=bytes_src_ip,
+            bytes_dst_ip=bytes_dst_ip,
+            src_port=dst_port,
+            dst_port=src_port,
+            seq_no=0,
+            ack_no=seq_no+1,
+            flags=rst_ack_flags,
         )
         return
 
-    if (flags & FLAGS_SYN) == FLAGS_SYN:
-        print('%s:%d -> %s:%d (seq=%d)' % (src_addr, src_port,
-                                           dst_addr, dst_port, seq_no))
+    id_conexao = (int_src_addr, src_port, int_dst_addr, dst_port)
+    if flags.b.SYN:
+        print('TCP-->\t', 'Nova conexão %s:%d -> %s:%d (seq=%d)' % (str_src_addr, src_port, str_dst_addr, dst_port, seq_no))
 
-        conexoes[id_conexao] = conexao = Conexao(id_conexao=id_conexao,
-                                                 seq_no=struct.unpack('I', os.urandom(4))[0],
-                                                 ack_no=seq_no + 1)
-
-        # make_synack(dst_port, src_port, conexao.seq_no, conexao.ack_no)
-        segment = struct.pack('!HHIIHHHH', src_port, dst_port, seq_no,
-                       ack_no, (5<<12)|FLAGS_ACK|FLAGS_SYN,
-                       1024, 0, 0)
-        send_ip(
-            fd=fd,
-            msg=fix_checksum(segment, src_addr, dst_addr),
-            protocol=TCP,
-            loc_ip=ip_addr_to_bytes(src_ip),
-            dst_ip=ip_addr_to_bytes(src_addr)
+        conexoes[id_conexao] = conexao = Conexao(
+            id_conexao=id_conexao,
+            seq_no=struct.unpack('I', os.urandom(4))[0],
+            ack_no=seq_no + 1
         )
-
+        # make_synack
+        syn_ack_flags = FlagsTCP()
+        syn_ack_flags.b.SYN = 1
+        syn_ack_flags.b.ACK = 1
+        raw_send_tcp(
+            fd,
+            bytes_src_ip=conexao.bytes_loc_ip,
+            bytes_dst_ip=conexao.bytes_rem_ip,
+            src_port=conexao.loc_port,
+            dst_port=conexao.rem_port,
+            seq_no=conexao.seq_no,
+            ack_no=conexao.ack_no,
+            flags=syn_ack_flags,
+        )
         conexao.seq_no += 1
 
         asyncio.get_event_loop().call_later(.1, send_next_tcp, fd, conexao)
     elif id_conexao in conexoes:
         conexao = conexoes[id_conexao]
         conexao.ack_no += len(payload)
+        conexao.payload += payload
+        if flags.RST or flags.FIN:
+            # make fin ack
+            conexao.send_queue = b''
+            send_next_tcp(fd, conexao)
     else:
         print('%s:%d -> %s:%d (pacote associado a conexão desconhecida)' % (src_addr, src_port, dst_addr, dst_port))
-
-def raw_send_tcp(fd, segment, ):
-    segment = struct.pack(
-        '!HHIIHHHH',
-        src_port,
-        dst_port,
-        seq_no,
-        ack_no,
-        (5<<12)|FLAGS_ACK|FLAGS_SYN,
-        1024,
-        0,
-        0
-    )
-    send_ip(
-        fd=fd,
-        msg=fix_checksum(segment, src_addr, dst_addr),
-        protocol=TCP,
-        loc_ip=ip_addr_to_bytes(src_ip),
-        dst_ip=ip_addr_to_bytes(src_addr)
-    )
-
-def send_eth(fd, datagram, protocol):
-    eth_header = mac_addr_to_bytes(dest_mac) + \
-        mac_addr_to_bytes(src_mac) + \
-        struct.pack('!H', protocol)
-    fd.send(eth_header + datagram)
-
-ip_pkt_id = 0
-def send_ip(fd, msg, protocol, loc_ip, dst_ip):
-    global ip_pkt_id
-    ip_header = bytearray(struct.pack('!BBHHHBBH',
-                            0x45, 0,
-                            20 + len(msg),
-                            ip_pkt_id,
-                            0,
-                            15,
-                            protocol,
-                            0) +
-                          loc_ip +
-                          dst_ip)
-    ip_header[10:12] = struct.pack('!H', calc_checksum(ip_header))
-    ip_pkt_id += 1
-    send_eth(fd, ip_header + msg, ETH_P_IP)
 
 def send_ping(fd):
     print('enviando ping')
     msg = bytearray(b"\x08\x00\x00\x00" + 2*b"\xba\xdc\x0f\xfe")
-    msg[2:4] = struct.pack('!H', calc_checksum(msg))
+    msg[2:4] = struct.pack('!H', calc_checksum_ip(msg))
 
-    send_ip(fd=fd, msg=msg, protocol=ICMP, loc_ip=ip_addr_to_bytes(src_ip), dst_ip=ip_addr_to_bytes(dest_ip))
+    send_ip(fd=fd, msg=msg, protocol=ICMP, bytes_loc_ip=ip_addr_to_bytes(src_ip), bytes_dst_ip=ip_addr_to_bytes(dest_ip))
 
     asyncio.get_event_loop().call_later(1, send_ping, fd)
 
-def calc_checksum(segment):
+ip_pkt_id = 0
+def send_ip(fd, msg, protocol, bytes_loc_ip, bytes_dst_ip):
+    global ip_pkt_id
+    ip_header = bytearray(
+        struct.pack(
+            '!BBHHHBBH',
+            0x45, 0,
+            20 + len(msg),
+            ip_pkt_id,
+            0,
+            15,
+            protocol,
+            0
+        ) +
+        bytes_loc_ip +
+        bytes_dst_ip
+    )
+    ip_header[10:12] = struct.pack('!H', calc_checksum_ip(ip_header))
+    ip_pkt_id += 1
+    send_eth(fd, ip_header + msg, eth_next_protocol=ETH_P_IP)
+
+def calc_checksum_ip(segment):
     if len(segment) % 2 == 1:
         segment += b'\x00'
     checksum = 0
@@ -311,9 +348,6 @@ def strip_head(head):
     VersionIHL, DSCPECN, TotalLength, Identification, FlagsFragmentOffset, TimeToLive, Protocol, \
     HeaderChecksum, SourceIPAddress, DestinationIPAddress = struct.unpack('!BBHHHBBHII', head[:20])
 
-    SourceIPAddress = bytes_to_ip_addr(head[12:16])
-    DestinationIPAddress = bytes_to_ip_addr(head[16:20])
-
     Version = VersionIHL >> 4
     IHL = VersionIHL & 0x0f
     DSCP = DSCPECN >> 2
@@ -331,6 +365,18 @@ def strip_head(head):
     FragmentOffset, TimeToLive, \
     Protocol, HeaderChecksum, SourceIPAddress, DestinationIPAddress, Options
 
+def ticktockman():
+    """
+    A ideia dessa função é que o buffer de pacotes inacabados é limpo proporcionalmente
+    ao número de pacotes recebidos.
+    Como padrão, 200 pacotes podem ser recebidos entre uma parcela e outra do segmentado.
+    """
+    for tripla in pacotes.copy().keys():
+        pacotes[tripla]['Ticktockman'] -= 1
+        if pacotes[tripla]['Ticktockman'] == 0:
+            print('\nTicktockman got you Harlequin\n')
+            del pacotes[tripla]
+
 def raw_recv_ip(datagrama):
     ticktockman()
     print('IPv4-->\t', 'recebido pacote de %d bytes' % len(datagrama))
@@ -345,9 +391,9 @@ def raw_recv_ip(datagrama):
         print('Protocolo estranho', Protocol)
         return None
 
-    if DestinationIPAddress != src_ip:
-        print('Ip destino não é ', src_ip)
-        return None
+    global LOCAL_IP_STRING
+    if DestinationIPAddress != LOCAL_IP_STRING:
+        print('Ip destino não é ', LOCAL_IP_STRING)
 
     print(
         'IPv4-->\t',
@@ -392,22 +438,14 @@ def raw_recv_ip(datagrama):
             completo += pacotes[tripla]['payload'][i]
         print('IPv4-->\t', 'Pacote Completo\n\t', completo.hex(), '\n')
         if Protocol == TCP:
-            raw_recv_tcp(fd=fd, src_addr=SourceIPAddress, dst_addr=DestinationIPAddress, segment=body)
+            raw_recv_tcp(fd=fd, int_src_addr=SourceIPAddress, int_dst_addr=DestinationIPAddress, segment=body)
         if Protocol == ICMP:
             pass
         del pacotes[tripla]
 
-def ticktockman():
-    """
-    A ideia dessa função é que o buffer de pacotes inacabados é limpo proporcionalmente
-    ao número de pacotes recebidos.
-    Como padrão, 200 pacotes podem ser recebidos entre uma parcela e outra do segmentado.
-    """
-    for tripla in pacotes.copy().keys():
-        pacotes[tripla]['Ticktockman'] -= 1
-        if pacotes[tripla]['Ticktockman'] == 0:
-            print('\nTicktockman got you Harlequin\n')
-            del pacotes[tripla]
+def send_eth(fd, datagram, eth_next_protocol):
+    eth_header = mac_addr_to_bytes(dest_mac) + mac_addr_to_bytes(src_mac) + struct.pack('!H', eth_next_protocol)
+    fd.send(eth_header + datagram)
 
 def raw_recv_eth(fd):
     frame = fd.recv(12000)
