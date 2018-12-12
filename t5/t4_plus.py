@@ -64,7 +64,34 @@ MSS = 1460
 TESTAR_PERDA_ENVIO = False
 
 class Conexao:
+    LISTEN='LISTEN'
+    # (server) represents waiting for a connection request from any remote TCP and port.
+    SYN_SENT='SYN_SENT'
+    # (client) represents waiting for a matching connection request after having sent a connection request.
+    SYN_RECEIVED='SYN_RECEIVED'
+    # (server) represents waiting for a confirming connection request acknowledgment after having both received and sent a connection request.
+    ESTABLISHED='ESTABLISHED'
+    # (both server and client) represents an open connection, data received can be delivered to the user.
+    # The normal state for the data transfer phase of the connection.
+    FIN_WAIT_1='FIN_WAIT_1'
+    # (both server and client) represents waiting for a connection termination request from the remote TCP,
+    # or an acknowledgment of the connection termination request previously sent.
+    FIN_WAIT_2='FIN_WAIT_2'
+    # (both server and client) represents waiting for a connection termination request from the remote TCP.
+    CLOSE_WAIT='CLOSE_WAIT'
+    # (both server and client) represents waiting for a connection termination request from the local user.
+    CLOSING='CLOSING'
+    # (both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+    LAST_ACK='LAST_ACK'
+    # (both server and client) represents waiting for an acknowledgment of the connection termination
+    # request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+    TIME_WAIT='TIME_WAIT'
+    # (either server or client) represents waiting for enough time to pass to be sure the remote TCP received the
+    #  acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for
+    # a maximum of four minutes known as two MSL (maximum segment lifetime).]
+    CLOSED='CLOSED'
     def __init__(self, id_conexao, seq_no, ack_no):
+        self.state = Conexao.CLOSED
         self.id_conexao = id_conexao
         self.int_rem_ip, self.rem_port, self.int_loc_ip, self.loc_port = id_conexao
         self.bytes_loc_ip = int2bytes(self.int_loc_ip)
@@ -120,6 +147,8 @@ def fix_checksum_tcp(segment, bytes_src_ip, bytes_dst_ip):
     return bytes(seg)
 
 def send_next_tcp(fd, conexao):
+    if conexao.state != Conexao.ESTABLISHED:
+        return
     payload = conexao.send_queue[:MSS]
     conexao.send_queue = conexao.send_queue[MSS:]
     print('TCP-->\t', 'send_next_tcp len', len(payload), '\t remainder', len(conexao.send_queue))
@@ -161,7 +190,7 @@ def send_next_tcp(fd, conexao):
     else:
         asyncio.get_event_loop().call_later(.001, send_next_tcp, fd, conexao)
 
-def raw_send_tcp(fd, bytes_src_ip, bytes_dst_ip, src_port, dst_port, seq_no, ack_no, flags, window_size=0, payload=b''):
+def raw_send_tcp(fd, bytes_src_ip, bytes_dst_ip, src_port, dst_port, seq_no, ack_no, flags, window_size=1024, payload=b'', options=b''):
     """
         | Len      | Meanig                         |
         |----------|--------------------------------|
@@ -182,7 +211,7 @@ def raw_send_tcp(fd, bytes_src_ip, bytes_dst_ip, src_port, dst_port, seq_no, ack
         Flags = Control bits: 9 bits
     """
     print('TCP-->\t', 'raw_send_tcp len', len(payload))
-    hed_len = 5
+    hed_len = 5 + (len(options) // 4)
     empty = 0
     flags_line = ((hed_len <<12) & 0xf000) | ((empty <<9) & 0x0e00) | (flags.asbyte & 0x01ff)
     chk_sum = 0x0000
@@ -197,7 +226,7 @@ def raw_send_tcp(fd, bytes_src_ip, bytes_dst_ip, src_port, dst_port, seq_no, ack
         window_size,
         chk_sum,
         urg_ptr
-    ) + payload
+    ) + options + payload
     segment = fix_checksum_tcp(segment, bytes_src_ip, bytes_dst_ip)
     send_ip(
         fd=fd,
@@ -263,10 +292,14 @@ def raw_recv_tcp(fd, int_src_addr, int_dst_addr, segment):
             seq_no=struct.unpack('I', os.urandom(4))[0],
             ack_no=seq_no + 1
         )
+        conexao.state = Conexao.LISTEN
         # make_synack
         syn_ack_flags = FlagsTCP()
         syn_ack_flags.b.SYN = 1
         syn_ack_flags.b.ACK = 1
+        # 0000   02 04 05 b4 04 02 08 0a 88 3e 97 38 35 8e 32 48
+        # 0010   01 03 03 07
+        synack_options = b'\x02\x04\x05\xb4\x04\x02\x01\x03\x03\x07'
         raw_send_tcp(
             fd,
             bytes_src_ip=conexao.bytes_loc_ip,
@@ -276,15 +309,23 @@ def raw_recv_tcp(fd, int_src_addr, int_dst_addr, segment):
             seq_no=conexao.seq_no,
             ack_no=conexao.ack_no,
             flags=syn_ack_flags,
+            options=synack_options
         )
         conexao.seq_no += 1
-
-        asyncio.get_event_loop().call_later(.1, send_next_tcp, fd, conexao)
+        conexao.state = Conexao.SYN_RECEIVED
     elif id_conexao in conexoes:
         conexao = conexoes[id_conexao]
+        # receive (pass to app)
         conexao.ack_no += len(payload)
         conexao.payload += payload
+        # handle state
+        if flags.FIN and flags.ACK:
+            conexao.state = Conexao.TIME_WAIT
+        if conexao.state == Conexao.SYN_RECEIVED and flags.ACK:
+            conexao.state = Conexao.ESTABLISHED
+            asyncio.get_event_loop().call_later(.1, send_next_tcp, fd, conexao)
         if flags.RST or flags.FIN:
+            conexao.state = Conexao.CLOSE_WAIT
             # make fin ack
             conexao.send_queue = b''
             send_next_tcp(fd, conexao)
